@@ -1,5 +1,5 @@
 # The load, unload, and reload commands used below (along with the for loop) were all derived from a Lucas YouTube tutorial
-# The idea for accessing the bot token through a .env file (and the implementation of this feature) were taken from a web tutorial
+# The idea for accessing the bot token through a .env file (and the implementation of this feature) were from a web tutorial
 # Lucas YouTube channel: https://www.youtube.com/channel/UCR-zOCvDCayyYy1flR5qaAg/featured
 # Web tutorial: https://realpython.com/how-to-make-a-discord-bot-python/#creating-a-bot
 
@@ -11,7 +11,11 @@ from dotenv import load_dotenv # allows us to load the token without displaying 
 
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN') # load in the token from the .env file in the same folder
-bot = commands.Bot(command_prefix = 'q!') # COMMENT HERE
+bot = commands.Bot(command_prefix = 'q!') # here we set the server prefix to q!, meaning that all commands
+# are called using the format q!cmdname
+
+# in the functions below, we check to see if the user has administrative purposes in the guild so that random
+# server users cannot unload or load cogs and create chaos
 
 @bot.command()
 async def load(ctx, extension):
