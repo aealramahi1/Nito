@@ -40,4 +40,4 @@ for filename in os.listdir('./cogs'): # lists all the files in cogs
     if filename.endswith('.py'):
         bot.load_extension(f'cogs.{filename[:-3]}') # strips the last three characters to get rid of the .py
 
-client.run(TOKEN) # bring the bot online
+bot.run(TOKEN) # bring the bot online
