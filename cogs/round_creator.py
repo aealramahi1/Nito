@@ -29,6 +29,7 @@ class round_creator(commands.Cog):
     async def create_round(self, ctx):
         '''Generate a round with you set as the owner of the round'''
         ## implementation
+        await ctx.send("IT WORKSSSS")
 
     @commands.command()
     async def end_round(self, ctx):

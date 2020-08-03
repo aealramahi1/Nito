@@ -54,7 +54,5 @@ class Player:
 
     def setIndex(newindex):
         '''Sets the index that the question is on to the new index'''
-        self.question_index = newindex
-
-    
+        self.question_index = newindex    
 }
