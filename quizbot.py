@@ -14,8 +14,12 @@ TOKEN = os.getenv('DISCORD_TOKEN') # load in the token from the .env file in the
 bot = commands.Bot(command_prefix = 'q!') # here we set the server prefix to q!, meaning that all commands
 # are called using the format q!cmdname
 
-# in the functions below, we check to see if the user has administrative purposes in the guild so that random
+# in the functions below, we check to see if the user has administrative privileges in the guild so that random
 # server users cannot unload or load cogs and create chaos
+
+@bot.event
+async def on_ready():
+    print("Bot is online!")
 
 @bot.command()
 async def load(ctx, extension):
@@ -35,9 +39,10 @@ async def reload(ctx, extension):
     bot.unload_extension(f'cogs.{extension}')
     bot.load_extension(f'cogs.{extension}')
 
-# the os module will allow us to load in all the cogs we have when our bot goes online
-for filename in os.listdir('./cogs'): # lists all the files in cogs
-    if filename.endswith('.py'):
-        bot.load_extension(f'cogs.{filename[:-3]}') # strips the last three characters to get rid of the .py
+if __name__ == "__main__":
+    # the os module will allow us to load in all the cogs we have when our bot goes online
+    for filename in os.listdir('./cogs'): # lists all the files in cogs
+        if filename.endswith('.py'):
+            bot.load_extension(f'cogs.{filename[:-3]}') # strips the last three characters to get rid of the .py
 
 bot.run(TOKEN) # bring the bot online

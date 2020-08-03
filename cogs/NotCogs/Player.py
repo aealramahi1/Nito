@@ -12,8 +12,10 @@ class Player:
         self.round_score = 0
         self.question_index = 0 # current question index (questions stored in a list)
 
+    ## GETTERS
+
     def getName():
-        '''Returns the user's Discord name including the discriminator'''
+        '''Returns the user's snowflake ID (special identifier)'''
         return name
 
     def getTotalScore():
@@ -27,4 +29,32 @@ class Player:
     def getQuestionIndex():
         '''Returns the index of the question that the user is currently on'''
         return self.question_index
+
+    ## SETTERS/CLEARERS
+
+    def setTotalScore(num):
+        '''Changes the total score of the user'''
+        # we can add or subtract from this score by passing in either a positive or a negative integer
+        self.total_score += num
+
+    def setRoundScore(num):
+        '''Changes the round score of the user'''
+        # same as with changing the total score, we can add in negative numbers if the score of the user dropped
+###### we are potentially going to want to implement this feature at the end of the round so that we don't have to keep a running total ######
+        self.round_score += num
+        changeTotalScore(num) # changing the total score in this function makes it easier for the client code
+
+    def clearRoundScore():
+        '''Sets the round score to 0'''
+        self.round_score = 0
+
+    def increaseIndex():
+        '''Increases the index of the question that the user is on by 1'''
+        self.question_index += 1
+
+    def setIndex(newindex):
+        '''Sets the index that the question is on to the new index'''
+        self.question_index = newindex
+
+    
 }
