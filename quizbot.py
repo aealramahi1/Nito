@@ -1,4 +1,4 @@
-import discord
+import discord, asyncio
 from discord.ext import commands # this is where our load and unload commands go
 from bot_token import TOKEN # Allows us to load the token without displaying it within the code
 # This allows opern-source code to be secure because you cannot access my bot's token
@@ -56,15 +56,15 @@ async def reload_cog(ctx, ext):
     bot.reload_extension("cogs.%s" % ext)
     await ctx.send("Cog successfully reloaded!")
 
-@bot.command(aliases = ["view", "viewcogs")
+@bot.command(aliases = ["view", "viewcogs"])
 async def view_cogs(ctx):
     '''Shows a list of all the currently loaded cogs'''
     await ctx.send("Currently loaded cogs:")
     for cog in currentcogs:
         await ctx.send("-%s\n" % cog)
 
-if __name__ == "__main__":
-    for cog in allcogs: # For each cog in the list, we load it in automatically whenever we run the program
-        bot.load_extension("cogs.%s" % cog)
-
+##if __name__ == "__main__":
+for cog in allcogs: # For each cog in the list, we load it in automatically whenever we run the program
+    bot.load_extension("cogs.%s" % cog)
 bot.run(TOKEN) # Bring the bot online
+#asyncio.create_task(view_cogs())
