@@ -20,6 +20,7 @@ currentcogs = ["defaults",
 @bot.event
 async def on_ready():
     print("Bot successfully connected!")
+#    await DiscordWebSocket.send_as_json(payload)
 
 @bot.command(aliases = ["load", "loadcog"])
 async def load_cog(ctx, ext):
@@ -63,8 +64,8 @@ async def view_cogs(ctx):
     for cog in currentcogs:
         await ctx.send("-%s\n" % cog)
 
-##if __name__ == "__main__":
-for cog in allcogs: # For each cog in the list, we load it in automatically whenever we run the program
-    bot.load_extension("cogs.%s" % cog)
+#if __name__ == "__main__":
+#for cog in allcogs: # For each cog in the list, we load it in automatically whenever we run the program
+#    bot.load_extension("cogs.%s" % cog)
 bot.run(TOKEN) # Bring the bot online
 #asyncio.create_task(view_cogs())
