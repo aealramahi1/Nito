@@ -63,8 +63,11 @@ async def view_cogs(ctx):
     for cog in currentcogs:
         await ctx.send("-%s\n" % cog)
 
-##if __name__ == "__main__":
+@bot.command(aliases = ["stop", "end"])
+async def halt(ctx):
+    '''Halts the execution of the bot from within the Discord guild'''
+    await bot.logout()
+
 for cog in allcogs: # For each cog in the list, we load it in automatically whenever we run the program
     bot.load_extension("cogs.%s" % cog)
 bot.run(TOKEN) # Bring the bot online
-#asyncio.create_task(view_cogs())
