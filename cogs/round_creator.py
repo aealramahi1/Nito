@@ -29,7 +29,9 @@ class round_creator(commands.Cog):
 
     @commands.command()
     async def create_round(self, ctx):
-        '''Generate a round with you set as the owner of the round'''
+        '''
+        Generate a round with you set as the owner of the round
+        '''
         ## implementation
         await ctx.send("IT WORKSSSS")
 
@@ -43,14 +45,20 @@ class round_creator(commands.Cog):
 
     @commands.command()
     async def join(self, ctx):
-        '''Request to join a currently established round'''
+        '''
+        Request to join a currently established round
+        '''
         ## implementation
 
     @commands.command()
     async def leave(self, ctx):
-        '''Leave the round you are currently in'''
+        '''
+        Leave the round you are currently in
+        '''
         ## implementation
 
 def setup(bot):
-    '''Allows the bot to load this cog'''
+    '''
+    Allows the bot to load this cog
+    '''
     bot.add_cog(round_creator(bot))

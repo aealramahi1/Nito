@@ -11,14 +11,20 @@ class defaults(commands.Cog):
 
     @commands.command()
     async def set_question_time(self, ctx): ## this may be wrong
-        '''Sets the time in between each sentence for this round only'''
+        '''
+        Sets the time in between each sentence for this round only
+        '''
         ## implementation
 
     @commands.command()
     async def check_question_time(self, ctx):
-        '''Checks the time in between each sentence for this round'''
+        '''
+        Checks the time in between each sentence for this round
+        '''
         ## implementation
 
 def setup(bot):
-    '''Allows the bot to load this cog'''
+    '''
+    Allows the bot to load this cog
+    '''
     bot.add_cog(defaults(bot))
