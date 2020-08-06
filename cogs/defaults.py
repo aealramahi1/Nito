@@ -4,7 +4,9 @@ from discord.ext import commands
 class defaults(commands.Cog):
 
     def __init__(self, bot):
-        '''Initializer function that allows us to access the bot within this cog'''
+        '''
+        Initializer function that allows us to access the bot within this cog
+        '''
         self.bot = bot
 
     @commands.command()

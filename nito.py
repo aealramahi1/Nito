@@ -1,33 +1,41 @@
-import discord, asyncio
-from discord.ext import commands # this is where our load and unload commands go
-from bot_token import TOKEN # Allows us to load the token without displaying it within the code
-# This allows opern-source code to be secure because you cannot access my bot's token
+import discord                      # This is the Discord.py API
 
-bot = commands.Bot(command_prefix = "q!") # Here we set the server prefix to q!, meaning that all commands
-# are called using the format q!cmdname
+from discord.ext import commands    # This is where our load and unload commands
+                                    # come from
 
-##### in the functions below, we check to see if the user has administrative privileges in the guild so that random
-##### server users cannot unload or load cogs and create chaos
+from bot_token import TOKEN         # Allows us to load the token without
+                                    # displaying it within the code: more secure
 
-# List of all the cogs that this bot will run by default. When new cogs are created, bots that ran the original code
-# can either re-run this code (I will update this list) or they can use the load and reload functions
+bot = commands.Bot(command_prefix = "q!")   # All commands are called using the
+                                            # format q!cmdname
+
+# List of all the cogs that this bot will run by default. When new cogs are
+# created, bots that ran the original code can either re-run this code
+# (I will update this list) or they can use the load and reload functions
 allcogs = ["defaults",
            "round_creator"]
 
 currentcogs = ["defaults",
-               "round_creator"] # Contains all the loaded cogs (which will be all the cogs unless one is unloaded)
+               "round_creator"]     # Contains all the loaded cogs (which will
+                                    # be all the cogs unless one is unloaded)
 
 @bot.event
 async def on_ready():
+    '''Called when the bot runs'''
     print("Bot successfully connected!")
 
 @bot.command(aliases = ["load", "loadcog"])
 async def load_cog(ctx, ext):
-    '''Allows us to load in a cog from within the Discord guild. This makes it easier to add new features to the bot'''
+    '''
+    Allows us to load in a cog from within the Discord guild. This makes it
+    easier to add new features to the bot
+    '''
     try:
-        if ext not in currentcogs: # Check to make sure we actually need to load this cog
-            bot.load_extension("cogs.%s" % ext) # All cogs are located within the cogs folder
-            currentcogs.append(ext) # Add it to the list of currently loaded cogs
+        if ext not in currentcogs:              # Check to make sure we actually
+                                                # need to load this cog
+            bot.load_extension("cogs.%s" % ext) # All cogs are in the cogs folder
+            currentcogs.append(ext)             # Add it to the list of
+                                                # currently loaded cogs
             if ext not in allcogs:
                 allcogs.append(ext) # If the code hasn't been updated with the new list of all the cogs, then this
                 # line will add it to the list (this action will be undone if the program restarts so the user should
