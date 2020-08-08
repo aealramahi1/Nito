@@ -13,19 +13,19 @@ class Player:
         question_index (int): Current question index
 
     Methods:
-        getID(): Returns the snowflake ID
-        getWholeName(): Returns Discord name and discriminator
-        getPartialName(): Returns only Discord name
-        getTotalScore(): Returns total score
-        getRoundScore(): Returns round score
-        getQuestionIndex(): Returns question index
-
         changeName(newname): Updates the user's Discord name
         changeTotalScore(num): Adds num to total_score
         changeRoundScore(num): Adds num to round_score
         clearRoundScore(): Sets round_score to 0
         increaseIndex(): Increments question_index by 1
         setIndex(newindex): Sets question_index to newindex
+
+        getID(): Returns the snowflake ID
+        getWholeName(): Returns Discord name and discriminator
+        getPartialName(): Returns only Discord name
+        getTotalScore(): Returns total score
+        getRoundScore(): Returns round score
+        getQuestionIndex(): Returns question index
     '''
 
     
@@ -44,6 +44,49 @@ class Player:
         self.total_score = 0
         self.round_score = 0
         self.question_index = 0 # The questions are stored in a list
+
+    ## SETTERS
+
+    def updateName(self, newname):
+        '''
+        Updates the user's Discord name and discriminator
+        '''
+        self.name = newname
+
+    def changeTotalScore(self, num):
+        '''
+        Changes the total score of the user
+
+        To decrease the score a negative int should be passed
+        '''
+        self.total_score += num
+
+    def changeRoundScore(self, num):
+        '''
+        Changes the round score of the user
+
+        To decrease the score a negative int should be passed
+        '''
+        self.round_score += num
+        # Changing the total score in this function makes it easier for the
+        # client code
+        changeTotalScore(num)
+
+    def clearRoundScore(self):
+        '''Sets the round score to 0'''
+        self.round_score = 0
+
+    def increaseIndex(self):
+        '''
+        Increases the index of the question that the user is on by 1
+        '''
+        self.question_index += 1
+
+    def setIndex(self, newindex):
+        '''
+        Sets the index that the question is on to the new index
+        '''
+        self.question_index = newindex
 
     ## GETTERS
 
@@ -88,47 +131,4 @@ class Player:
         Returns the index of the question that the user is currently on
         '''
         return self.question_index
-
-    ## SETTERS
-
-    def updateName(self, newname):
-        '''
-        Updates the user's Discord name and discriminator
-        '''
-        self.name = newname
-
-    def changeTotalScore(self, num):
-        '''
-        Changes the total score of the user
-
-        To decrease the score a negative int should be passed
-        '''
-        self.total_score += num
-
-    def changeRoundScore(self, num):
-        '''
-        Changes the round score of the user
-
-        To decrease the score a negative int should be passed
-        '''
-        self.round_score += num
-        # Changing the total score in this function makes it easier for the
-        # client code
-        changeTotalScore(num)
-
-    def clearRoundScore(self):
-        '''Sets the round score to 0'''
-        self.round_score = 0
-
-    def increaseIndex(self):
-        '''
-        Increases the index of the question that the user is on by 1
-        '''
-        self.question_index += 1
-
-    def setIndex(self, newindex):
-        '''
-        Sets the index that the question is on to the new index
-        '''
-        self.question_index = newindex    
 }
