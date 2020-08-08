@@ -1,4 +1,4 @@
-class Round:
+class Round(object):
 {
     '''
     There will be one round object per channel in each guild to represent the
@@ -130,33 +130,38 @@ class Round:
 
         return message
 
-    def setQuestionTime(num):
+    def setQuestionTime(player, num):
         '''
         Changes question_time
 
         Parameters:
+            player (Player object): The user requesting to change
+                                    question_time
             num (float/int): The time to set question_time to
 
         Returns:
             message (str): The message detailing the results of the function
                            (i.e. whether it worked or not)
         '''
-        # Prevent negative time
-        if num < 0:
-            message = "You cannot have negative time"
+        if player is self.round_owner
+            # Prevent negative time
+            if num < 0:
+                message = "You cannot have negative time"
 
-        # Pretty reasonable numbers for now
-        elif 0 <= num and num <= 60:
-            self.question_time = float(num) # question_time is always a float
-            message = "Question time set to: " + num
-        
-        # Prevent super big numbers
-        elif num > 60:
-            message = "That number is way too big"
+            # Pretty reasonable numbers for now
+            elif 0 <= num and num <= 60:
+                self.question_time = float(num) # question_time is always a float
+                message = "Question time set to: " + num
             
-        # Hopefully this never runs, but you can't be too safe
+            # Prevent super big numbers
+            elif num > 60:
+                message = "That number is way too big"
+                
+            # Hopefully this never runs, but you can't be too safe
+            else:
+                message = "An error has occurred"
         else:
-            message = "An error has occurred"
+            message = "You cannot do that. You are not the round owner."
 
         return message
 

@@ -1,4 +1,6 @@
-class Player:
+import discord
+
+class Player(Member):
 {
     '''
     Each user who plays with this bot will have a Player object associated with
@@ -37,6 +39,9 @@ class Player:
             theid (int): The snowflake ID of the user
             name (str): The Discord name and discriminator of the user
         '''
+        Member.__init__() # We want to create everything for this user
+        # that the Member class will create
+        
         # The snowflake ID will remain the same if the username is changed
         self.theid = theid
         # There is a # in between the Discord name and discriminator
