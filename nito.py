@@ -10,11 +10,13 @@ bot = commands.Bot(command_prefix = "q!")
 # created, bots that ran the original code can either re-run this code
 # (I will update this list) or they can use the load and reload functions
 allcogs = ["defaults",
-           "roundCreator"]
+           "roundCreator",
+	   "playerActions"]
 
 # Contains all the loaded cogs (which will be all the cogs unless unloaded)
 currentcogs = ["defaults",
-               "roundCreator"]
+               "roundCreator",
+	       "playerActions"]
 
 @bot.event
 async def on_ready():

@@ -1,5 +1,4 @@
 class Round(object):
-{
     '''
     There will be one round object per channel in each guild to represent the
     area in which the bot is played
@@ -76,7 +75,7 @@ class Round(object):
         '''
         # Make sure the player is not the owner or already in the list of
         # current players
-        if newplayer not in self.player_list and \ 
+        if newplayer not in self.player_list and \
            newplayer is not self.round_owner:
             self.player_list.append(newplayer)
             message = newplayer.getPartialName() + " joined successfully!"
@@ -143,7 +142,7 @@ class Round(object):
             message (str): The message detailing the results of the function
                            (i.e. whether it worked or not)
         '''
-        if player is self.round_owner
+        if player is self.round_owner:
             # Prevent negative time
             if num < 0:
                 message = "You cannot have negative time"
@@ -248,4 +247,3 @@ class Round(object):
         Returns round_status
         '''
         return round_status
-}

@@ -1,4 +1,4 @@
-import RoundClass
+import cogs.RoundClass
 import discord
 from discord.ext import commands
 
