@@ -50,11 +50,11 @@ class Round(object):
         # The person who created the round is the only one who can control it
         self.round_owner = thisplayer
         # List to contain all the players for this round, including the owner
-        self.player_list = [round_owner]
+        self.player_list = [self.round_owner]
         # Indicates whether the round is currently active or not
         self.round_status = True
 
-    def endRound():
+    def endRound(self):
         '''
         Ends the round and sets all relevant variables to null
         '''
@@ -129,7 +129,7 @@ class Round(object):
 
         return message
 
-    def setQuestionTime(player, num):
+    def setQuestionTime(self, player, num):
         '''
         Changes question_time
 
@@ -164,7 +164,7 @@ class Round(object):
 
         return message
 
-    def resetQuestionTime():
+    def resetQuestionTime(self):
         '''
         Resets question_time to default
 
@@ -175,7 +175,7 @@ class Round(object):
         message = "Question time reset to 5.0 seconds"
         return message
 
-    def setBuzzTime(num):
+    def setBuzzTime(self, num):
         '''
         Changes buzz_time
 
@@ -205,7 +205,7 @@ class Round(object):
 
         return message
 
-    def resetBuzzTime():
+    def resetBuzzTime(self):
         '''
         Resets buzz_time to default
 
@@ -218,32 +218,32 @@ class Round(object):
 
     ## GETTERS
 
-    def getQuestionTime():
+    def getQuestionTime(self):
         '''
         Returns question_time
         '''
-        return question_time
+        return self.question_time
 
-    def getBuzzTime():
+    def getBuzzTime(self):
         '''
         Returns buzz_time
         '''
-        return buzz_time
+        return self.buzz_time
 
-    def getRoundOwner():
+    def getRoundOwner(self):
         '''
         Returns round_owner
         '''
-        return round_owner
+        return self.round_owner
 
-    def getPlayers():
+    def getPlayers(self):
         '''
         Returns player_list
         '''
-        return player_list
+        return self.player_list
 
-    def getRoundStatus():
+    def getRoundStatus(self):
         '''
         Returns round_status
         '''
-        return round_status
+        return self.round_status
