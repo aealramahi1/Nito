@@ -110,13 +110,13 @@ class Round(object):
         # Make sure the player is already in the list of players, but not the
         # owner
         if oldplayer in self.player_list and \
-           newplayer is not self.round_owner:
+           oldplayer is not self.round_owner:
             self.player_list.remove(oldplayer)
             message = oldplayer.getPartialName() + " has quit."
 
         # Check to see if the player is the round owner
         elif oldplayer is self.round_owner:
-            endRound()
+            self.endRound()
             message = "The round owner has quit. Round ended."
 
         # Check to see if the user wasn't even playing

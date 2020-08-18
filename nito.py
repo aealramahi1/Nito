@@ -11,12 +11,12 @@ bot = commands.Bot(command_prefix = "q!")
 # (I will update this list) or they can use the load and reload functions
 allcogs = ["defaults",
            "roundCreator",
-	   "playerActions"]
+	       "playerActions"]
 
 # Contains all the loaded cogs (which will be all the cogs unless unloaded)
 currentcogs = ["defaults",
                "roundCreator",
-	       "playerActions"]
+	           "playerActions"]
 
 @bot.event
 async def on_ready():
@@ -107,4 +107,5 @@ async def halt(ctx):
 # Each cog in the list is loaded in automatically whenever we run the program
 for cog in allcogs: 
     bot.load_extension("cogs.%s" % cog)
+
 bot.run(TOKEN) # Bring the bot online
