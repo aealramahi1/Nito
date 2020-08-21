@@ -23,19 +23,22 @@ class Player():
         getTotalScore(): Returns total score
         getRoundScore(): Returns round score
         getQuestionIndex(): Returns question index
+        getId(): Returns the snowflake ID
+        getInitializer(): Returns the call to create a new object with the
+                          data of the current object
     '''
 
-    def __init__(self, memobj):
+    def __init__(self, theid, totscore=0, rndscore=0, index=0):
         '''
         Initializes a Player object for a user in the guild
 
         Parameters:
             memobj (Member object): The member object of the user   
         '''
-        self.memberobj = memobj
-        self.total_score = 0
-        self.round_score = 0
-        self.question_index = 0 # The questions are stored in a list
+        self.theid = theid
+        self.total_score = totscore
+        self.round_score = rndscore
+        self.question_index = index # The questions are stored in a list
 
     def __str__(self):
         '''
@@ -44,7 +47,8 @@ class Player():
         Returns:
             message (str): Represents all the information about the Player
         '''
-        message = self.memberobj.display_name + ":\n"
+        # The name of the user calling the command should be taken care of
+        # in the client
         message += "\tTotal Score: " + str(self.total_score)
         message += "\n\tQuestion Number: " + str(self.question_index + 1)
         # We add one to the message because indexing always starts at zero
@@ -107,3 +111,19 @@ class Player():
         Returns the index of the question that the user is currently on
         '''
         return self.question_index
+
+    def getId(self):
+        '''
+        Returns the snowflake ID of the player
+        '''
+        return self.theid
+
+    def getInitializer(self):
+        '''
+        Returns the call to create a new object with the same data as the
+        current one
+        '''
+        call = "PlayerClass.Player(" + str(self.getId()) + "," + \
+               str(self.total_score) + "," + str(self.round_score) + "," + \
+               str(self.question_index) + ")"
+        return call
