@@ -2,6 +2,7 @@ import discord
 from discord.ext import commands
 from discord.ext import tasks
 import cogs.RoundClass as RoundClass
+from cogs.playerActions import playerActions.allplayers as allplayers
 import os
 
 class roundCreator(commands.Cog):
@@ -22,6 +23,10 @@ class roundCreator(commands.Cog):
         q!join: Joins the round in the current channel (if permission is
                 granted by the round owner)
         q!leave: Leave the round in the current channel
+        q!set_question_time: Sets the question time for this round
+        q!check_question_time: Checks the current question time for this round
+        q!set_buzz_time: Sets the buzz time for this round
+        q!check_buzz_time: Checks the buzz time for this round
     '''
 
     # Stores the Round objects in the format
@@ -298,6 +303,28 @@ class roundCreator(commands.Cog):
                 await ctx.send("An error occurred trying to leave a round")
         elif not this_round:
             await ctx.send("Error: no round found.")
+
+    @commands.command(aliases = ["setq", "setqt"])
+    async def set_question_time(self, ctx, time):
+        '''
+        Set the question time for this round. This command may only be used
+        by the round owner if the round is active
+
+        Parameters:
+            time (float/int): The new time (seconds) of question_time
+        '''
+        guild_id = ctx.guild.id
+        channel_id = ctx.channel.id
+        user = ctx.author
+
+        this_round, status = self.getRound(guild_id, channel_id)
+
+        # If the round is active, only the round owner may call this command
+        if this_round.getRoundStatus() == True:
+            if ctx.author.id == this_round.getRoundOwner
+
+        # Otherwise, anyone can use the command
+        else:
 
 def setup(bot):
     '''
