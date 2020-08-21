@@ -14,9 +14,9 @@ class playerActions(commands.Cog):
         savePlayers: Saves player information every 3 minutes
 
     Commands:
+        q!save_players: Saves player information
         q!establish_player: Initializes a player object for the user that
                             called the command
-        q!save_players: Saves player information
     '''
    
     # Import the player data if we have any
@@ -52,10 +52,10 @@ class playerActions(commands.Cog):
         Initializer function that allows us to access the bot within this cog
         '''
         self.bot = bot
-        self.autosave.start()
+        self.autosavePlayers.start()
 
     @tasks.loop(minutes = 3)
-    async def autosave(self):
+    async def autosavePlayers(self):
         '''
         Saves player information every 3 minutes
         '''
@@ -84,11 +84,11 @@ class playerActions(commands.Cog):
             else:
                 write_data += "@" + str(guild)
 
-            # Loop through the users and the players and add them
+            # Loop through the users and the Players and add them
             for user in ap[guild]:
                 player = ap[guild][user]
                 write_data += "*" + str(user)
-                # Grab the initializer for this player object
+                # Grab the initializer for this Player object
                 write_data += "*" + player.getInitializer()
 
         # Write the updated dictionary to the file

@@ -26,16 +26,19 @@ class Round(object):
         getRoundOwner(): Returns round_owner
         getPlayers(): Returns player_list
         getRoundStatus(): Returns round_status
+        getInitializer(): Returns the statement needed to initialize the
+                          current round
     '''
     
-    def __init__(self):
+    def __init__(self, qt=5.0, bt=6.0, ro=None, pl=None, stat=False):
         '''
         Initializes the values for this object
         '''
-        # Time (seconds) in between each sentence of the question
-        self.question_time = 5.0
-        # Time (seconds) the player has to guess after buzzing
-        self.buzz_time = 6.0
+        self.question_time = qt
+        self.buzz_time = bt
+        self.round_owner = ro
+        self.player_list = pl
+        self.round_status = False
 
     ## SETTERS, SHAKERS, MOVERS, WHAT HAVE YOU
 
@@ -247,3 +250,12 @@ class Round(object):
         Returns round_status
         '''
         return self.round_status
+
+    def getInitializer(self):
+        '''
+        Returns the initializer for the current Round object
+        '''
+        init = "RoundClass.Round(" + str(self.question_time) + ","
+        init += str(self.buzz_time) + "," + str(self.round_owner) + ","
+        init += str(self.player_list) + "," + str(self.round_status) + ")"
+        return init
