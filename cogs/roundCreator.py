@@ -3,7 +3,7 @@ import discord
 from discord.ext import commands
 from discord.ext import tasks
 import cogs.RoundClass as RoundClass
-import cogs.playerActions
+import cogs.playerActions as playerActions
 
 class roundCreator(commands.Cog):
     '''
@@ -38,6 +38,7 @@ class roundCreator(commands.Cog):
         # {GUILD_ID : {CHANNEL_ID : ROUNDOBJ}}
         self.allr = {}
         # The Player objects from playerActions
+        self.ap = playerActions.getPlayers()
         self.bot = bot
         self.load_rounds()
         self.autosaveRounds.start()

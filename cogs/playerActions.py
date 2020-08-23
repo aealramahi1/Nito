@@ -1,16 +1,23 @@
+import os
 import discord
 from discord.ext import commands
 from discord.ext import tasks
 import cogs.PlayerClass as PlayerClass
-import os
 
 class playerActions(commands.Cog):
     '''
     This cog deals with commands that have to do with the user's Player
     object and its methods
 
+    Attributes:
+        allp: Nested dictionary storing the Player objects in the format of
+              {GUILD_ID : {USER_ID : PLAYEROBJ}}
+
+    Methods:
+        getPlayers(): Returns self.allp
+
     Loops:
-        savePlayers: Saves player information every 3 minutes
+        autosavePlayers: Saves player information every 3 minutes
 
     Commands:
         q!load_players: Loads player information
@@ -29,6 +36,13 @@ class playerActions(commands.Cog):
         self.bot = bot
         self.load_players()
         self.autosavePlayers.start()
+
+    @staticmethod
+    def getPlayers(self):
+        '''
+        Returns the nested dictionary with the player objects
+        '''
+        return self.allp
 
     @tasks.loop(minutes = 3)
     async def autosavePlayers(self):
