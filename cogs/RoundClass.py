@@ -30,7 +30,7 @@ class Round(object):
                           current round
     '''
     
-    def __init__(self, qt=5.0, bt=6.0, ro=None, pl=None, stat=False):
+    def __init__(self, ro=None, qt=5.0, bt=6.0, pl=None, stat=False):
         '''
         Initializes the values for this object
         '''

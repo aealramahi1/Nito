@@ -1,9 +1,9 @@
+import os
 import discord
 from discord.ext import commands
 from discord.ext import tasks
 import cogs.RoundClass as RoundClass
-from cogs.playerActions import playerActions.allplayers as allplayers
-import os
+import cogs.playerActions
 
 class roundCreator(commands.Cog):
     '''
@@ -17,6 +17,7 @@ class roundCreator(commands.Cog):
         createRound(gid, cid, newrnd): Creates a new round
 
     Commands:
+        q!load_players: Loads round information
         q!save_rounds: Saves round information
         q!create_round: Creates a new round or reactivates an existing one
         q!end_round: Ends the currently active round
@@ -29,59 +30,64 @@ class roundCreator(commands.Cog):
         q!check_buzz_time: Checks the buzz time for this round
     '''
 
-    # Stores the Round objects in the format
-    # {GUILD_ID : {CHANNEL_ID : ROUNDOBJ}}
-    allrounds = {}
- 
-    # Import the round data if we have any
-    if os.stat("cogs/RoundData.txt").st_size != 0:
-        # Open the data file for reading
-        rounddata = open("cogs/RoundData.txt", "r")
-        contents = rounddata.read()
-
-        # Gather all the round data by guild
-        # Each guild is separated by a @ character
-        guilds = contents.split("@")
-
-        # Loop through each guild
-        for guild in guilds:
-            # The channels and Round objects are split by *
-            all_data = guild.split("*")
-            # The guild ID is the first element
-            gid = int(all_data[0])
-            # Make this dictionary nested
-            allrounds[gid] = {}
-
-            # Loop through all the channels and re-establish Round objects
-            # We count by twos so that we shift to the next channel each time
-            # instead of to a Round object
-            for i in range(1, len(all_data) - 1, 2):
-                channel = int(all_data[i])
-                roundobj = all_data[i + 1]
-                allrounds[gid][channel] = eval(roundobj)   
-
     def __init__(self, bot):
         '''
         Initializer function that allows us to access the bot within this cog
         '''
-        self.bot = bot # now we can interact with the bot using self.bot
+        # Stores the Round objects in the format
+        # {GUILD_ID : {CHANNEL_ID : ROUNDOBJ}}
+        self.allr = {}
+        # The Player objects from playerActions
+        self.bot = bot
+        self.load_rounds()
         self.autosaveRounds.start()
 
     @tasks.loop(minutes = 4)
     async def autosaveRounds(self):
         '''
-        Saves round information every 4 minutes
+        Saves round information every 4 minutes.
         '''
         await self.save_rounds()
 
+    @commands.command()
+    @commands.has_permissions(manage_messages = True)
+    async def load_rounds(self):
+        '''
+        Loads round information. Only administrators may use this command.
+        '''
+        # Import the round data if we have any
+        if os.stat("cogs/RoundData.txt").st_size != 0:
+            # Open the data file for reading
+            rounddata = open("cogs/RoundData.txt", "r")
+            contents = rounddata.read()
+
+            # Gather all the round data by guild
+            # Each guild is separated by a @ character
+            guilds = contents.split("@")
+
+            # Loop through each guild
+            for guild in guilds:
+                # The channels and Round objects are split by *
+                all_data = guild.split("*")
+                # The guild ID is the first element
+                gid = int(all_data[0])
+                # Make this dictionary nested
+                self.allr[gid] = {}
+
+                # Loop through all the channels and re-establish Round objects
+                # We count by twos so that we shift to the next channel
+                # each time instead of to a Round object
+                for i in range(1, len(all_data) - 1, 2):
+                    channel = int(all_data[i])
+                    roundobj = all_data[i + 1]
+                    self.allr[gid][channel] = eval(roundobj)   
+
     @commands.command(aliases = ["saver", "saverounds", "saveRounds"])
+    @commands.has_permissions(manage_messages = True)
     async def save_rounds(self):
         '''
-        Saves round information
+        Saves round information. Only administrators may use this command.
         '''
-        # We'll use this dictionary extensively here, so an alias is useful
-        ar = roundCreator.allrounds
-
         # Open the file to write
         roundfile = open("cogs/RoundData.txt", "w")
 
@@ -90,7 +96,7 @@ class roundCreator(commands.Cog):
         # objects are separated with *
 
         # Loop through and write all of the guild_ids
-        for guild in ar:
+        for guild in self.allr:
             # We don't want the first character to be @
             if write_data == "":
                 write_data += str(guild)
@@ -98,8 +104,8 @@ class roundCreator(commands.Cog):
                 write_data += "@" + str(guild)
 
             # Loop through the channels and the rounds and add them
-            for channel in ar[guild]:
-                theround = ar[guild][channel]
+            for channel in self.allr[guild]:
+                theround = self.allr[guild][channel]
                 write_data += "*" + str(channel)
                 # Grab the initializer for this Round object
                 write_data += "*" + theround.getInitializer()
@@ -126,7 +132,7 @@ class roundCreator(commands.Cog):
         '''
         # Check to make sure the round object exists and get its status
         try:
-            this_round = roundCreator.allrounds[gid][cid]
+            this_round = self.allr[gid][cid]
             status = this_round.getRoundStatus()
         except:
             this_round = None
@@ -145,11 +151,11 @@ class roundCreator(commands.Cog):
         # If the guild id is not in the dictionary then we will get
         # an error
         try:
-            roundCreator.allrounds[gid][cid] = newrnd
+            self.allr[gid][cid] = newrnd
         except:
             # Create a key for the guild id
-            roundCreator.allrounds[gid] = {}
-            roundCreator.allrounds[gid][cid] = newrnd
+            self.allr[gid] = {}
+            self.allr[gid][cid] = newrnd
             await self.save_rounds()
     
     @commands.command(aliases = ["createround", "create", "cr", "start",
@@ -160,7 +166,9 @@ class roundCreator(commands.Cog):
         '''
         guild_id = ctx.guild.id
         channel_id = ctx.channel.id
-        round_owner = ctx.author
+        # round_owner = ctx.author
+        ## ADD TRY AND EXCEPT LATER
+        round_owner = self.ap[gid][ctx.author.id]
 
         this_round, status = self.getRound(guild_id, channel_id)
 
@@ -172,8 +180,7 @@ class roundCreator(commands.Cog):
             this_round.startRound(round_owner)
             await ctx.send("Round created.")
        
-        # If no round exists, create a new one, add it to the list, then
-        # start it
+        # If no round exists, create a new one
         elif this_round == None:
             new_round = RoundClass.Round()
             await self.makeRound(guild_id, channel_id, new_round)
@@ -188,7 +195,9 @@ class roundCreator(commands.Cog):
         '''
         guild_id = ctx.guild.id
         channel_id = ctx.channel.id
-        user_id = ctx.author.id
+        #user_id = ctx.author.id
+        ## ADD TRY AND EXCEPT
+        user = self.allp[guild_id][ctx.author.id]
 
         this_round, status = self.getRound(guild_id, channel_id)
 
@@ -197,7 +206,7 @@ class roundCreator(commands.Cog):
             # Active round
             if status == True:
                 # Make sure this is the round owner ending the round
-                if user_id == this_round.getRoundOwner().id:
+                if user == this_round.getRoundOwner():
                     this_round.endRound()
                     await ctx.send("Round ended.")
                 else:
@@ -212,6 +221,8 @@ class roundCreator(commands.Cog):
        # If the round doesn't exist
         elif not this_round:
             await ctx.send("Error: no round found.")
+
+#### NEED TO BE EDITED TO USE THE PLAYER OBJECT INSTEAD OF THE MEMBER OBJ
 
     @commands.command(aliases = ["j", "jo", "joi"])
     async def join(self, ctx):
@@ -321,10 +332,12 @@ class roundCreator(commands.Cog):
 
         # If the round is active, only the round owner may call this command
         if this_round.getRoundStatus() == True:
-            if ctx.author.id == this_round.getRoundOwner
+            if ctx.author.id == this_round.getRoundOwner().getID():
+                pass
 
         # Otherwise, anyone can use the command
         else:
+            pass
 
 def setup(bot):
     '''
