@@ -1,7 +1,6 @@
-import discord                      # Discord.py API
-from discord.ext import commands    # Load and unload commands come from here
-from botToken import TOKEN         # Allows us to load the token without
-                                    # putting it in the code for security
+import discord
+from discord.ext import commands
+from botToken import TOKEN
 
 # All command are called using the format q!cmdname
 bot = commands.Bot(command_prefix = "q!")
@@ -9,14 +8,14 @@ bot = commands.Bot(command_prefix = "q!")
 # List of all the cogs that this bot will run by default. When new cogs are
 # created, bots that ran the original code can either re-run this code
 # (I will update this list) or they can use the load and reload functions
-allcogs = ["defaults",
+allcogs = ["playerActions",
            "roundCreator",
-	       "playerActions"]
+	       "defaults"]
 
 # Contains all the loaded cogs (which will be all the cogs unless unloaded)
-currentcogs = ["defaults",
+currentcogs = ["playerActions",
                "roundCreator",
-	           "playerActions"]
+	           "defaults"]
 
 @bot.event
 async def on_ready():

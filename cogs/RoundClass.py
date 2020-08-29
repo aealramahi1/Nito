@@ -12,7 +12,7 @@ class Round(object):
 
     Methods:
         startRound(thisplayer): Starts the round with thisplayer as
-                                 round_owner
+                                round_owner
         endRound(): Ends the round and sets variables to null
         addPlayer(newplayer): Adds another player to player_list
         removePlayer(oldplayer): Removes a player from player_list
@@ -20,12 +20,7 @@ class Round(object):
         resetQuestionTime(): Resets question_time to default (5.0)
         setBuzzTime(num): Sets buzz_time to num
         resetBuzzTime(): Resets buzz_time to default (6.0)
-
-        getQuestionTime(): Returns question_time
-        getBuzzTime(): Returns buzz_time
-        getRoundOwner(): Returns round_owner
-        getPlayers(): Returns player_list
-        getRoundStatus(): Returns round_status
+        
         getInitializer(): Returns the statement needed to initialize the
                           current round
     '''
@@ -39,8 +34,6 @@ class Round(object):
         self.round_owner = ro
         self.player_list = pl
         self.round_status = False
-
-    ## SETTERS, SHAKERS, MOVERS, WHAT HAVE YOU
 
     def startRound(self, thisplayer):
         '''
@@ -148,20 +141,20 @@ class Round(object):
         if player is self.round_owner:
             # Prevent negative time
             if num < 0:
-                message = "You cannot have negative time"
+                message = "You cannot have negative time."
 
             # Pretty reasonable numbers for now
             elif 0 <= num and num <= 60:
                 self.question_time = float(num) # question_time is always a float
-                message = "Question time set to: " + num
+                message = "Question time set to: " + num + "."
             
             # Prevent super big numbers
             elif num > 60:
-                message = "That number is way too big"
+                message = "That number is way too big."
                 
-            # Hopefully this never runs, but you can't be too safe
+            # Prevents anything other than numbers
             else:
-                message = "An error has occurred"
+                message = "Please enter a number."
         else:
             message = "You cannot do that. You are not the round owner."
 
@@ -218,38 +211,6 @@ class Round(object):
         self.buzz_time = 6.0
         message = "Buzz time reset to 6.0 seconds"
         return message
-
-    ## GETTERS
-
-    def getQuestionTime(self):
-        '''
-        Returns question_time
-        '''
-        return self.question_time
-
-    def getBuzzTime(self):
-        '''
-        Returns buzz_time
-        '''
-        return self.buzz_time
-
-    def getRoundOwner(self):
-        '''
-        Returns round_owner
-        '''
-        return self.round_owner
-
-    def getPlayers(self):
-        '''
-        Returns player_list
-        '''
-        return self.player_list
-
-    def getRoundStatus(self):
-        '''
-        Returns round_status
-        '''
-        return self.round_status
 
     def getInitializer(self):
         '''

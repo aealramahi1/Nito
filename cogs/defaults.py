@@ -18,7 +18,7 @@ class defaults(commands.Cog):
         Initializer function that allows us to access the bot within this cog
         '''
         self.bot = bot
-
+"""
     @commands.command()
     async def set_question_time(self, ctx, time):
         '''
@@ -35,6 +35,7 @@ class defaults(commands.Cog):
         Checks the time in between each sentence for this round
         '''
         ## implementation
+"""
 
 def setup(bot):
     '''

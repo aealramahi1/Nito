@@ -30,16 +30,18 @@ class roundCreator(commands.Cog):
         q!check_buzz_time: Checks the buzz time for this round
     '''
 
+    # Stores the Round objects in the format
+    # {GUILD_ID : {CHANNEL_ID : ROUNDOBJ}}
+    allr = {}
+
     def __init__(self, bot):
         '''
         Initializer function that allows us to access the bot within this cog
         '''
-        # Stores the Round objects in the format
-        # {GUILD_ID : {CHANNEL_ID : ROUNDOBJ}}
-        self.allr = {}
-        # The Player objects from playerActions
-        self.ap = playerActions.getPlayers()
         self.bot = bot
+        # The Player objects from playerActions
+        self.playercog = self.bot.get_cog("cogs/playerActions.py")
+        self.ap = self.playercog.getallp()
         self.load_rounds()
         self.autosaveRounds.start()
 
@@ -73,7 +75,7 @@ class roundCreator(commands.Cog):
                 # The guild ID is the first element
                 gid = int(all_data[0])
                 # Make this dictionary nested
-                self.allr[gid] = {}
+                roundCreator.allr[gid] = {}
 
                 # Loop through all the channels and re-establish Round objects
                 # We count by twos so that we shift to the next channel
@@ -81,7 +83,7 @@ class roundCreator(commands.Cog):
                 for i in range(1, len(all_data) - 1, 2):
                     channel = int(all_data[i])
                     roundobj = all_data[i + 1]
-                    self.allr[gid][channel] = eval(roundobj)   
+                    roundCreator.allr[gid][channel] = eval(roundobj)   
 
     @commands.command(aliases = ["saver", "saverounds", "saveRounds"])
     @commands.has_permissions(manage_messages = True)
@@ -97,7 +99,7 @@ class roundCreator(commands.Cog):
         # objects are separated with *
 
         # Loop through and write all of the guild_ids
-        for guild in self.allr:
+        for guild in roundCreator.allr:
             # We don't want the first character to be @
             if write_data == "":
                 write_data += str(guild)
@@ -105,8 +107,8 @@ class roundCreator(commands.Cog):
                 write_data += "@" + str(guild)
 
             # Loop through the channels and the rounds and add them
-            for channel in self.allr[guild]:
-                theround = self.allr[guild][channel]
+            for channel in roundCreator.allr[guild]:
+                theround = roundCreator.allr[guild][channel]
                 write_data += "*" + str(channel)
                 # Grab the initializer for this Round object
                 write_data += "*" + theround.getInitializer()
@@ -133,7 +135,7 @@ class roundCreator(commands.Cog):
         '''
         # Check to make sure the round object exists and get its status
         try:
-            this_round = self.allr[gid][cid]
+            this_round = roundCreator.allr[gid][cid]
             status = this_round.getRoundStatus()
         except:
             this_round = None
@@ -152,11 +154,11 @@ class roundCreator(commands.Cog):
         # If the guild id is not in the dictionary then we will get
         # an error
         try:
-            self.allr[gid][cid] = newrnd
+            roundCreator.allr[gid][cid] = newrnd
         except:
             # Create a key for the guild id
-            self.allr[gid] = {}
-            self.allr[gid][cid] = newrnd
+            roundCreator.allr[gid] = {}
+            roundCreator.allr[gid][cid] = newrnd
             await self.save_rounds()
     
     @commands.command(aliases = ["createround", "create", "cr", "start",
@@ -169,7 +171,7 @@ class roundCreator(commands.Cog):
         channel_id = ctx.channel.id
         # round_owner = ctx.author
         ## ADD TRY AND EXCEPT LATER
-        round_owner = self.ap[gid][ctx.author.id]
+        round_owner = playerActions.allp[gid][ctx.author.id]
 
         this_round, status = self.getRound(guild_id, channel_id)
 
@@ -198,7 +200,7 @@ class roundCreator(commands.Cog):
         channel_id = ctx.channel.id
         #user_id = ctx.author.id
         ## ADD TRY AND EXCEPT
-        user = self.allp[guild_id][ctx.author.id]
+        user = playerActions.allp[guild_id][ctx.author.id]
 
         this_round, status = self.getRound(guild_id, channel_id)
 
@@ -327,18 +329,19 @@ class roundCreator(commands.Cog):
         '''
         guild_id = ctx.guild.id
         channel_id = ctx.channel.id
-        user = ctx.author
-
+        user = playerActions.allp[guild_id][ctx.author.id]
+        
         this_round, status = self.getRound(guild_id, channel_id)
 
         # If the round is active, only the round owner may call this command
-        if this_round.getRoundStatus() == True:
-            if ctx.author.id == this_round.getRoundOwner().getID():
-                pass
+        if this_round.status == True:
+            # The Round class will do all our checks for us
+            msg = this_round.setQuestionTime(user, time)
+            await ctx.send(msg)
 
         # Otherwise, anyone can use the command
         else:
-            pass
+            await ctx.send("No round found.")
 
 def setup(bot):
     '''
