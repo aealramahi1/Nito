@@ -1,2 +1,2 @@
-# QuizBot
- Quizbowl-type Discord bot
+# NitoBot
+ Trivia Discord bot
