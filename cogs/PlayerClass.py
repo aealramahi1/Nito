@@ -50,7 +50,7 @@ class Player():
         Returns the call to create a new object with the same data as the
         current one
         '''
-        call = "PlayerClass.Player(" + str(self.getId()) + "," + \
+        call = "PlayerClass.Player(" + str(self.theid) + "," + \
                str(self.total_score) + "," + str(self.round_score) + "," + \
                str(self.question_index) + ")"
         return call

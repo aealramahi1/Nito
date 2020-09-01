@@ -40,8 +40,8 @@ class roundCreator(commands.Cog):
         '''
         self.bot = bot
         # The Player objects from playerActions
-        self.playercog = self.bot.get_cog("cogs/playerActions.py")
-        self.ap = self.playercog.getallp()
+        playercog = self.bot.get_cog("playerActions")
+        self.ap = playercog.getallp()
         self.load_rounds()
         self.autosaveRounds.start()
 
@@ -51,6 +51,10 @@ class roundCreator(commands.Cog):
         Saves round information every 4 minutes.
         '''
         await self.save_rounds()
+
+    @commands.command()
+    async def test(self, ctx):
+        await ctx.send(self.ap)
 
     @commands.command()
     @commands.has_permissions(manage_messages = True)

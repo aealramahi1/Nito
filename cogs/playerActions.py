@@ -36,7 +36,7 @@ class playerActions(commands.Cog):
         self.autosavePlayers.start()
 
     @staticmethod
-    def getallp(self):
+    def getallp():
         return playerActions.allp
 
     @tasks.loop(minutes = 3)
@@ -89,11 +89,13 @@ class playerActions(commands.Cog):
         playerfile = open("cogs/PlayerData.txt", "w")
 
         write_data = ""
+
         # Write the data so that guilds are separated by @ and users/player
         # objects are separated with *
 
         # Loop through and write all of the guild_ids
         for guild in playerActions.allp:
+
             # We don't want the first character to be @
             if write_data == "":
                 write_data += str(guild)
@@ -104,6 +106,7 @@ class playerActions(commands.Cog):
             for user in playerActions.allp[guild]:
                 player = playerActions.allp[guild][user]
                 write_data += "*" + str(user)
+
                 # Grab the initializer for this Player object
                 write_data += "*" + player.getInitializer()
 
@@ -123,8 +126,10 @@ class playerActions(commands.Cog):
 
         # Make sure the user doesn't have multiple Player objects
         try:
+
             # result is True if the user already has a Player object
             result = False
+
             # flag is False unless we reach the end of the dictionary
             flag = False
             all_users = playerActions.allp[guild_id].keys()
