@@ -1,5 +1,5 @@
 class Round(object):
-    '''
+    """
     There will be one round object per channel in each guild to represent the
     area in which the bot is played
 
@@ -23,26 +23,33 @@ class Round(object):
         
         getInitializer(): Returns the statement needed to initialize the
                           current round
-    '''
+    """
     
     def __init__(self, ro=None, qt=5.0, bt=6.0, pl=None, stat=False):
-        '''
+        """
         Initializes the values for this object
-        '''
+
+        Parameters:
+            ro (Player object): The round owner (default None)
+            qt (float): The question time (default 5.0)
+            bt (float): The buzz time (default 6.0)
+            pl (list): The list of players (default None)
+            stat (boolean): The round status (default False)
+        """
         self.question_time = qt
         self.buzz_time = bt
         self.round_owner = ro
         self.player_list = pl
-        self.round_status = False
+        self.round_status = stat
 
     def startRound(self, thisplayer):
-        '''
+        """
         Starts the round with the player who called this command as the round
         owner.
 
         Parameters:
             thisplayer (Player object): Person who created the round
-        '''
+        """
         # The person who created the round is the only one who can control it
         self.round_owner = thisplayer
         # List to contain all the players for this round, including the owner
@@ -51,15 +58,15 @@ class Round(object):
         self.round_status = True
 
     def endRound(self):
-        '''
+        """
         Ends the round and sets all relevant variables to null
-        '''
+        """
         self.round_owner = None
         self.player_list = []
         self.round_status = False
 
     def addPlayer(self, newplayer):
-        '''
+        """
         Adds another player to the list of current players
 
         Parameters:
@@ -68,7 +75,7 @@ class Round(object):
         Returns:
             message (str): The message detailing the results of the function
                            (i.e. whether it worked or not)
-        '''
+        """
         # Make sure the player is not the owner or already in the list of
         # current players
         if newplayer not in self.player_list and \
@@ -93,7 +100,7 @@ class Round(object):
         return message
 
     def removePlayer(self, oldplayer):
-        '''
+        """
         Removes a current player from the list of players
 
         Parameters:
@@ -102,7 +109,7 @@ class Round(object):
         Returns:
             message (str): The message detailing the results of the function
                            (i.e. whether it worked or not)
-        '''
+        """
         # Make sure the player is already in the list of players, but not the
         # owner
         if oldplayer in self.player_list and \
@@ -126,7 +133,7 @@ class Round(object):
         return message
 
     def setQuestionTime(self, player, num):
-        '''
+        """
         Changes question_time
 
         Parameters:
@@ -137,15 +144,15 @@ class Round(object):
         Returns:
             message (str): The message detailing the results of the function
                            (i.e. whether it worked or not)
-        '''
+        """
         if player is self.round_owner:
             # Prevent negative time
             if num < 0:
                 message = "You cannot have negative time."
 
             # Pretty reasonable numbers for now
-            elif 0 <= num and num <= 60:
-                self.question_time = float(num) # question_time is always a float
+            elif 0 <= num <= 60:
+                self.question_time = float(num)  # question_time is always a float
                 message = "Question time set to: " + num + "."
             
             # Prevent super big numbers
@@ -161,18 +168,18 @@ class Round(object):
         return message
 
     def resetQuestionTime(self):
-        '''
+        """
         Resets question_time to default
 
         Returns:
             message (str): Lets us know that this function works properly
-        '''
+        """
         self.question_time = 5.0
         message = "Question time reset to 5.0 seconds"
         return message
 
     def setBuzzTime(self, num):
-        '''
+        """
         Changes buzz_time
 
         Parameters:
@@ -181,13 +188,13 @@ class Round(object):
         Returns:
             message (str): The message detailing the results of the function
                            (i.e. whether it worked or not)
-        '''
+        """
         # Prevent negative time
         if num < 0:
             message = "You cannot have negative time"
 
         # Pretty reasonable numbers for now
-        elif 0 <= num and num <= 60:
+        elif 0 <= num <= 60:
             self.buzz_time = float(num)
             message = "Question time set to: " + num
         
@@ -202,20 +209,20 @@ class Round(object):
         return message
 
     def resetBuzzTime(self):
-        '''
+        """
         Resets buzz_time to default
 
         Returns:
             message (str): Lets us know that this function works properly
-        '''
+        """
         self.buzz_time = 6.0
         message = "Buzz time reset to 6.0 seconds"
         return message
 
     def getInitializer(self):
-        '''
+        """
         Returns the initializer for the current Round object
-        '''
+        """
         init = "RoundClass.Round(" + str(self.question_time) + ","
         init += str(self.buzz_time) + "," + str(self.round_owner) + ","
         init += str(self.player_list) + "," + str(self.round_status) + ")"
