@@ -180,7 +180,7 @@ class Round(object):
 
     def setBuzzTime(self, num):
         """
-        Changes buzz_time
+        Changes buzz_time, preventing invalid values from being passed in
 
         Parameters:
             num (float/int): The time to set buzz_time to

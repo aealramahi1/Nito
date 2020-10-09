@@ -119,7 +119,7 @@ async def halt(ctx):
     """
     Halts the execution of the bot from within the Discord guild
     """
-    await ctx.send("Until next time :)")
+    await ctx.send("Until next time : )")
     await bot.logout()
 
 # Each cog in the list is loaded in automatically whenever we run the program

@@ -33,9 +33,9 @@ class playerActions(commands.Cog):
         """
         self.bot = bot
 
-    @staticmethod
-    def getallp():
-        return playerActions.allp
+    @commands.command()
+    async def test(self, ctx):
+        await ctx.send(playerActions.allp)
 
     @tasks.loop(minutes=3)
     async def autosavePlayers(self):
