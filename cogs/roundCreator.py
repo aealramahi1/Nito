@@ -81,7 +81,7 @@ class roundCreator(commands.Cog):
                 for i in range(1, len(all_data) - 1, 2):
                     channel = int(all_data[i])
                     roundobj = all_data[i + 1]
-                    roundCreator.allr[gid][channel] = eval(roundobj)   
+                    roundCreator.allr[gid][channel] = eval(roundobj)
 
     @commands.command(aliases=["saver", "saverounds", "saveRounds"])
     @commands.has_permissions(manage_messages=True)
@@ -113,7 +113,7 @@ class roundCreator(commands.Cog):
 
         # Write the updated dictionary to the file
         round_file.write(write_data)
-                
+
         # Close the file
         round_file.close()
 
@@ -136,7 +136,7 @@ class roundCreator(commands.Cog):
             roundCreator.allr[gid] = {}
             roundCreator.allr[gid][cid] = newrnd
             await self.save_rounds()
-    
+
     @commands.command(aliases=["createround", "create", "cr", "start",
                                "startround", "sr"])
     async def create_round(self, ctx):
@@ -208,77 +208,76 @@ class roundCreator(commands.Cog):
         """
         Request to join a currently established round
         """
-        guild_id = ctx.guild.id
-        channel_id = ctx.channel.id
+        this_round, status = getRound(ctx.guild.id, ctx.channel.id)
+        new_player = getPlayer(ctx.guild.id, ctx.author.id)
 
-        try:
-            new_player = playercog.allp[guild_id][ctx.author.id]
+        # Will be used later in this command
+        def correctUser(context):
+            """
+            Makes sure that the user is round_owner and is messaging in the
+            correct channel
 
-            this_round, status = getRound(guild_id, channel_id)
+            Parameters:
+                context: The context
 
-            # Will be used later in this command
-            def correctUser(context):
-                """
-                Makes sure that the user is round_owner and is messaging in the
-                correct channel
+            Returns:
+                result (Boolean): True if the user is round_owner
+            """
+            result = context.author == this_round.round_owner and \
+                context.channel.id == ctx.channel.id
+            return result
 
-                Parameters:
-                    context: The context
+        # Round exists and the player isn't joining a round they're already in
+        if this_round and new_player not in this_round.getPlayers():
+            # Round active
+            if status:
+                # The mention strings for the relevant users (allows us
+                # to mention them in the channel)
+                mention_owner = this_round.getRoundOwner().mention
+                mention_player = new_player.mention
 
-                Returns:
-                    result (Boolean): True if the user is round_owner
-                """
-                result = context.author == this_round.getRoundOwner() and \
-                    context.channel.id == channel_id
-                return result
+                # Asks round_owner for permission to join
+                await ctx.send("Hey %s, can %s join (y/n)?" %
+                               (mention_owner, mention_player))
 
-            # Round exists and the player isn't joining a round they're in
-            if this_round and new_player not in this_round.getPlayers():
-                # Round active
-                if status:
-                    # The mention strings for the relevant users (allows us
-                    # to mention them in the channel)
-                    mention_owner = this_round.getRoundOwner().mention
-                    mention_player = new_player.mention
+                # Errors can be triggered if this times out so we handle them
+                try:
+                    # Wait for 5 seconds for a response
+                    response = await self.bot.wait_for('message', timeout=5.0,
+                                                       check=correctUser)
+                    response_content = response.content
+                # todo: make sure this works
+                except asyncio.TimeoutError:
+                    # If the round owner doesn't respond, do nothing
+                    await ctx.send("No response? Sorry %s, you" % mention_player,
+                                   "can't join unless you get approval.")
+                    response_content = "n"
 
-                    # Asks round_owner for permission to join
-                    await ctx.send("Hey %s, can %s join (y/n)?" %
-                                   (mention_owner, mention_player))
+                # If the round owner said yes, join the player
+                if response_content == "y":
+                    this_round.addPlayer(new_player)
+                    await ctx.send("Welcome to the round %s" % mention_player)
+                # If the round owner said no, do nothing and apologize
+                elif response_content == "n":
+                    await ctx.send("Sorry %s, tough luck!" % mention_player)
+                # If the round owner put something else
+                else:
+                    await ctx.send("I asked for y or n...")
 
-                    # Errors can be triggered if this times out so we handle them
-                    try:
-                        # Wait for 5 seconds for a response
-                        response = await self.bot.wait_for('message', timeout=5.0,
-                                                           check=correctUser)
-                        response_content = response.content
-                    # todo: make sure this works
-                    except asyncio.TimeoutError:
-                        # If the round owner doesn't respond, do nothing
-                        await ctx.send("No response? Sorry %s, you" % mention_player,
-                                       "can't join unless you get approval.")
-                        response_content = "n"
+            # Round inactive
+            elif not status:
+                await ctx.send("No active round found.")
 
-                    # If the round owner said yes, join the player
-                    if response_content == "y":
-                        await ctx.send("Welcome to the round %s" % mention_player)
-                    # If the round owner said no, do nothing and apologize
-                    elif response_content == "n":
-                        await ctx.send("Sorry %s, tough luck!" % mention_player)
-                    # If the round owner put something else
-                    else:
-                        await ctx.send("I asked for y or n...")
+        # The user isn't joining a round they are already in
+        elif new_player in this_round.getPlayers():
+            await ctx.send("You are already in this round...")
 
-                # Round inactive
-                elif not status:
-                    await ctx.send("No active round found.")
+        # No round found
+        elif not this_round:
+            await ctx.send("Error: no round found.")
 
-            elif not this_round:
-                await ctx.send("Error: no round found.")
-
-            # The user isn't joining a round they are already in
-            elif new_player in this_round.getPlayers():
-                await ctx.send("You are already in this round...")
-        except KeyError:
+        # No Player found
+        elif not new_player:
             await ctx.send("You have not yet established yourself as a player!")
 
     @commands.command(aliases=["l", "leav", "lev"])
@@ -286,25 +285,27 @@ class roundCreator(commands.Cog):
         """
         Leave the round you are currently in
         """
-        guild_id = ctx.guild.id
-        channel_id = ctx.channel.id
-        try:
-            old_player = playercog.allp[guild_id][ctx.author.id]
+        this_round, status = getRound(ctx.guild.id, ctx.channel.id)
+        old_player = getPlayer(ctx.guild.id, ctx.author.id)
 
-            this_round, status = getRound(guild_id, channel_id)
+        # Make sure there is a round and a player
+        if this_round and old_player:
 
-            # The same nested if as above
-            if this_round:
-                if status:
-                    this_round.removePlayer(old_player)
-                    await ctx.send("Goodbye %s" % old_player.mention)
-                elif not status:
-                    await ctx.send("No active round found.")
-                else:
-                    await ctx.send("An error occurred trying to leave a round")
-            elif not this_round:
-                await ctx.send("Error: no round found.")
-        except KeyError:
+            # ...and that it's active
+            if status:
+                this_round.removePlayer(old_player)
+                await ctx.send("Goodbye %s" % old_player.mention)
+            elif not status:
+                await ctx.send("No active round found.")
+            else:
+                await ctx.send("An error occurred trying to leave a round")
+
+        # No round found
+        elif not this_round:
+            await ctx.send("Error: no round found.")
+
+        # No player found
+        elif not old_player:
             await ctx.send("You have not yet established yourself as a player!")
 
     @commands.command(aliases=["setq", "setqt"])
@@ -317,23 +318,22 @@ class roundCreator(commands.Cog):
             ctx: The context
             time (float/int): The new time (seconds) of question_time
         """
-        guild_id = ctx.guild.id
-        channel_id = ctx.channel.id
-        try:
-            user = playercog.allp[guild_id][ctx.author.id]
+        this_round, status = getRound(ctx.guild.id, ctx.channel.id)
+        user = getPlayer(ctx.guild.id, ctx.author.id)
 
-            this_round, status = getRound(guild_id, channel_id)
+        # If the round is active, only the round owner may call this command
+        if this_round.status and user:
+            # The Round class will do all our checks for us
+            msg = this_round.setQuestionTime(user, time)
+            await ctx.send(msg)
 
-            # If the round is active, only the round owner may call this command
-            if this_round.status:
-                # The Round class will do all our checks for us
-                msg = this_round.setQuestionTime(user, time)
-                await ctx.send(msg)
+        # If there is no round or the round is inactive, we can't change
+        # the time
+        elif not this_round.status or not this_round:
+            await ctx.send("No round found.")
 
-            # Otherwise, anyone can use the command
-            else:
-                await ctx.send("No round found.")
-        except KeyError:
+        # If the user has no Player object we don't want them changing anything
+        elif not user:
             await ctx.send("You have not yet established yourself as a player!")
 
 
@@ -358,6 +358,26 @@ def getRound(gid, cid):
         this_round = None
         status = None
     return this_round, status
+
+
+def getPlayer(gid, authid):
+    """
+    Returns the Player object for the user with aid, if found
+
+    Parameters:
+        gid (int): The guild id
+        authid (int): The user id
+
+    Returns:
+        user (Player object): The Player object for the user (if there is no
+                              player found, None)
+    """
+    # Make sure the Player object exists
+    try:
+        user = playercog.allp[gid][authid]
+    except KeyError:
+        user = None
+    return user
 
 
 def setup(bot):
