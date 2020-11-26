@@ -11,8 +11,7 @@ class Round(object):
         round_status (boolean): True if the round is playing, False if not
 
     Methods:
-        startRound(thisplayer): Starts the round with thisplayer as
-                                round_owner
+        startRound(thisplayer): Starts the round with thisplayer as round_owner
         endRound(): Ends the round and sets variables to null
         addPlayer(newplayer): Adds another player to player_list
         removePlayer(oldplayer): Removes a player from player_list
@@ -21,10 +20,9 @@ class Round(object):
         setBuzzTime(num): Sets buzz_time to num
         resetBuzzTime(): Resets buzz_time to default (6.0)
         
-        getInitializer(): Returns the statement needed to initialize the
-                          current round
+        getInitializer(): Returns the statement needed to initialize the current round
     """
-    
+
     def __init__(self, ro=None, qt=5.0, bt=6.0, pl=None, stat=False):
         """
         Initializes the values for this object
@@ -73,13 +71,12 @@ class Round(object):
             newplayer (Player object): Person who joined the round
 
         Returns:
-            message (str): The message detailing the results of the function
-                           (i.e. whether it worked or not)
+            message (str): The message detailing the results of the function (i.e. whether it worked or not)
         """
         # Make sure the player is not the owner or already in the list of
         # current players
         if newplayer not in self.player_list and \
-           newplayer is not self.round_owner:
+                newplayer is not self.round_owner:
             self.player_list.append(newplayer)
             message = newplayer.getPartialName() + " joined successfully!"
 
@@ -107,13 +104,12 @@ class Round(object):
             oldplayer (Player object): The player who wishes to leave
 
         Returns:
-            message (str): The message detailing the results of the function
-                           (i.e. whether it worked or not)
+            message (str): The message detailing the results of the function (i.e. whether it worked or not)
         """
         # Make sure the player is already in the list of players, but not the
         # owner
         if oldplayer in self.player_list and \
-           oldplayer is not self.round_owner:
+                oldplayer is not self.round_owner:
             self.player_list.remove(oldplayer)
             message = oldplayer.getPartialName() + " has quit."
 
@@ -137,13 +133,11 @@ class Round(object):
         Changes question_time
 
         Parameters:
-            player (Player object): The user requesting to change
-                                    question_time
+            player (Player object): The user requesting to change question_time
             num (float/int): The time to set question_time to
 
         Returns:
-            message (str): The message detailing the results of the function
-                           (i.e. whether it worked or not)
+            message (str): The message detailing the results of the function (i.e. whether it worked or not)
         """
         if player is self.round_owner:
             # Prevent negative time
@@ -154,11 +148,11 @@ class Round(object):
             elif 0 <= num <= 60:
                 self.question_time = float(num)  # question_time is always a float
                 message = "Question time set to: " + num + "."
-            
+
             # Prevent super big numbers
             elif num > 60:
                 message = "That number is way too big."
-                
+
             # Prevents anything other than numbers
             else:
                 message = "Please enter a number."
@@ -186,8 +180,7 @@ class Round(object):
             num (float/int): The time to set buzz_time to
 
         Returns:
-            message (str): The message detailing the results of the function
-                           (i.e. whether it worked or not)
+            message (str): The message detailing the results of the function (i.e. whether it worked or not)
         """
         # Prevent negative time
         if num < 0:
@@ -197,11 +190,11 @@ class Round(object):
         elif 0 <= num <= 60:
             self.buzz_time = float(num)
             message = "Question time set to: " + num
-        
+
         # Prevent super big numbers
         elif num > 60:
             message = "That number is way too big"
-            
+
         # Hopefully this never runs, but you can't be too safe
         else:
             message = "An error has occurred"

@@ -11,8 +11,7 @@ class Player:
         question_index (int): Current question index
 
     Methods:
-        getInitializer(): Returns the call to create a new object with the
-                          data of the current object
+        getInitializer(): Returns the call to create a new object with the data of the current object
     """
 
     def __init__(self, theid, totscore=0, rndscore=0, index=0):
