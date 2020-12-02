@@ -25,8 +25,6 @@ class RoundCreator(commands.Cog):
         q!leave: Leave the round in the current channel
         q!set_question_time: Sets the question time for this round
         q!check_question_time: Checks the current question time for this round
-
-        TODO: IMPLEMENT
         q!set_buzz_time: Sets the buzz time for this round
         q!check_buzz_time: Checks the buzz time for this round
     """
@@ -47,7 +45,13 @@ class RoundCreator(commands.Cog):
         {'inline': False, 'name': 'q!leave',
          'value': 'Leave the round in the current channel.'},
         {'inline': False, 'name': 'q!set_question_time\tq!setq\tq!setqt',
-         'value': 'Sets the question time for this round.'}]
+         'value': 'Sets the question time for this round.'},
+        {'inline': False, 'name': 'q!check_question_time\tq!checkq\tq!checkqt',
+         'value': 'Checks the question time for this round.'},
+        {'inline': False, 'name': 'q!set_buzz_time\tq!setb\tq!setbt',
+         'value': 'Sets the buzz time for this round.'},
+        {'inline': False, 'name': 'q!check_buzz_time\tq!checkb\tq!checkbt',
+         'value': 'Checks the buzz time for this round.'}]
 
     # Stores the Round objects in the format
     # {GUILD_ID : {CHANNEL_ID : ROUNDOBJ}}
@@ -87,17 +91,20 @@ class RoundCreator(commands.Cog):
 
             # Loop through each guild
             for guild in guilds:
+
                 # The channels and Round objects are split by *
                 all_data = guild.split('*')
+
                 # The guild ID is the first element
                 gid = int(all_data[0])
+
                 # Make this dictionary nested
                 RoundCreator.allr[gid] = {}
 
                 # Loop through all the channels and re-establish Round objects
                 # We count by twos so that we shift to the next channel
                 # each time instead of to a Round object
-                for i in range(1, len(all_data) - 1, 2):
+                for i in range(1, len(all_data), 2):
                     channel = int(all_data[i])
                     roundobj = all_data[i + 1]
                     RoundCreator.allr[gid][channel] = eval(roundobj)
@@ -167,7 +174,7 @@ class RoundCreator(commands.Cog):
         # Make sure the user has a Player object
         try:
             round_owner = playercog.allp[guild_id][ctx.author.id]
-            this_round, status = getRound(guild_id, channel_id)
+            this_round = getRound(guild_id, channel_id)
 
             # One round object is created for each channel and then is activated
             # and deactivated subsequently so we check if one already exists
@@ -195,12 +202,12 @@ class RoundCreator(commands.Cog):
         channel_id = ctx.channel.id
         try:
             user = playercog.allp[guild_id][ctx.author.id]
-            this_round, status = getRound(guild_id, channel_id)
+            this_round = getRound(guild_id, channel_id)
 
             # If the round exists
             if this_round:
                 # Active round
-                if status:
+                if this_round.round_status:
                     # Make sure this is the round owner ending the round
                     if user == this_round.round_owner:
                         this_round.endRound()
@@ -208,11 +215,8 @@ class RoundCreator(commands.Cog):
                     else:
                         await ctx.send('You are not the round owner.')
                 # Inactive round
-                elif not status:
+                elif not this_round.round_status:
                     await ctx.send('This round was never started...')
-                # Triggered by an error (status == None)
-                else:
-                    await ctx.send('An error occurred trying to end a round')
 
             # If the round doesn't exist
             elif not this_round:
@@ -225,7 +229,7 @@ class RoundCreator(commands.Cog):
         """
         Request to join a currently established round
         """
-        this_round, status = getRound(ctx.guild.id, ctx.channel.id)
+        this_round = getRound(ctx.guild.id, ctx.channel.id)
         new_player = getPlayer(ctx.guild.id, ctx.author.id)
 
         # Will be used later in this command
@@ -245,7 +249,7 @@ class RoundCreator(commands.Cog):
         # Round exists and the player isn't joining a round they're already in
         if this_round and new_player not in this_round.getPlayers():
             # Round active
-            if status:
+            if this_round.round_status:
                 # The mention strings for the relevant users (allows us
                 # to mention them in the channel)
                 mention_owner = this_round.getRoundOwner().mention
@@ -280,7 +284,7 @@ class RoundCreator(commands.Cog):
                     await ctx.send('I asked for y or n...')
 
             # Round inactive
-            elif not status:
+            elif not this_round.round_status:
                 await ctx.send('No active round found.')
 
         # The user isn't joining a round they are already in
@@ -300,17 +304,17 @@ class RoundCreator(commands.Cog):
         """
         Leave the round you are currently in
         """
-        this_round, status = getRound(ctx.guild.id, ctx.channel.id)
+        this_round = getRound(ctx.guild.id, ctx.channel.id)
         old_player = getPlayer(ctx.guild.id, ctx.author.id)
 
         # Make sure there is a round and a player
         if this_round and old_player:
 
             # ...and that it's active
-            if status:
+            if this_round.round_status:
                 this_round.removePlayer(old_player)
                 await ctx.send('Goodbye %s' % old_player.mention)
-            elif not status:
+            elif not this_round.round_status:
                 await ctx.send('No active round found.')
             else:
                 await ctx.send('An error occurred trying to leave a round')
@@ -332,19 +336,97 @@ class RoundCreator(commands.Cog):
             ctx: The context
             time (float/int): The new time (seconds) of question_time
         """
-        this_round, status = getRound(ctx.guild.id, ctx.channel.id)
+        this_round = getRound(ctx.guild.id, ctx.channel.id)
         user = getPlayer(ctx.guild.id, ctx.author.id)
 
         # If the round is active, only the round owner may call this command
-        if this_round.status and user:
+        if this_round.round_status and user:
             # The Round class will do all our checks for us
             msg = this_round.setQuestionTime(user, time)
             await ctx.send(msg)
 
         # If there is no round or the round is inactive, we can't change
         # the time
-        elif not this_round.status or not this_round:
+        elif not this_round.round_status or not this_round:
             await ctx.send('No round found.')
+
+        # If the user has no Player object we don't want them changing anything
+        elif not user:
+            await ctx.send('You have not yet established yourself as a player!')
+
+    @commands.command(aliases=['checkq', 'checkqt'])
+    async def check_question_time(self, ctx):
+        """
+        Checks the question time for this round. This command may only be used by the round owner if the round is active
+
+        Paramters:
+            ctx: The context
+        """
+        this_round = getRound(ctx.guild.id, ctx.channel.id)
+        user = getPlayer(ctx.guild.id, ctx.author.id)
+
+        # If the round is active, only the round owner may call this command
+        if this_round.round_status and user:
+            # The Round class will do all our checks for us
+            await ctx.send(this_round.question_time)
+
+        # If there is no round or the round is inactive, we can't change
+        # the time
+        elif not this_round.round_status or not this_round:
+            await ctx.send('No round found.')
+
+        # If the user has no Player object we don't want them changing anything
+        elif not user:
+            await ctx.send('You have not yet established yourself as a player!')
+
+    @commands.command(aliases=['setb', 'setbt'])
+    async def set_buzz_time(self, ctx, time):
+        """
+        Sets the buzz time for this round. This command may only be used by the round owner if the round is active
+
+        Paramters:
+            ctx: The context
+            time (float/int): The new time (seconds) of buzz_time
+        """
+        this_round = getRound(ctx.guild.id, ctx.channel.id)
+        user = getPlayer(ctx.guild.id, ctx.author.id)
+
+        # If the round is active, only the round owner may call this command
+        if this_round.round_status and user is this_round.round_owner:
+
+            # The Round class will check that the time is valid for us
+            msg = this_round.setBuzzTime(time)
+            await ctx.send(msg)
+
+        # If there is no round or the round is inactive, we can't change
+        # the time
+        elif not this_round.round_status or not this_round:
+            await ctx.send('No round found.')
+
+        # If the user has no Player object we don't want them changing anything
+        elif not user:
+            await ctx.send('You have not yet established yourself as a player!')
+
+    @commands.command(aliases=['checkb', 'checkbt'])
+    async def check_buzz_time(self, ctx):
+        """
+        Checks the buzz time for this round. This command may only be used by the round owner if the round is active
+
+        Paramters:
+            ctx: The context
+        """
+        this_round = getRound(ctx.guild.id, ctx.channel.id)
+        user = getPlayer(ctx.guild.id, ctx.author.id)
+
+        # If there is no round or the round is inactive, we can't change
+        # the time
+        if this_round is None or not this_round.round_status:
+            await ctx.send('No round found.')
+
+        # If the round is active, only the round owner may call this command
+        elif this_round.round_status and user:
+            # The Round class will do all our checks for us
+            await ctx.send(str(this_round.buzz_time))
 
         # If the user has no Player object we don't want them changing anything
         elif not user:
@@ -353,7 +435,7 @@ class RoundCreator(commands.Cog):
 
 def getRound(gid, cid):
     """
-    Returns the current round and status, if found
+    Returns the current, if found
 
     Parameters:
         gid (int): The guild id
@@ -361,16 +443,13 @@ def getRound(gid, cid):
 
     Returns:
         this_round (Round object): The current round (if there is no round found in this channel, None)
-        status (Boolean): The status of the current round (or None)
     """
-    # Check to make sure the round object exists and get its status
+    # Check to make sure the round object exists
     try:
         this_round = RoundCreator.allr[gid][cid]
-        status = this_round.round_status
     except KeyError:
         this_round = None
-        status = None
-    return this_round, status
+    return this_round
 
 
 def getPlayer(gid, authid):

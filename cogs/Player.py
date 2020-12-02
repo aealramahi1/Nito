@@ -27,7 +27,9 @@ class Player:
         self.theid = theid
         self.total_score = totscore
         self.round_score = rndscore
-        self.question_index = index  # The questions are stored in a list
+
+        # The questions are stored in a list
+        self.question_index = index
 
     def __str__(self):
         """
@@ -37,10 +39,12 @@ class Player:
             message (str): Represents all the information about the Player
         """
         message = ""
+
         # The name of the user calling the command should be taken care of
         # in the client
         message += "\tTotal Score: " + str(self.total_score)
         message += "\n\tQuestion Number: " + str(self.question_index + 1)
+
         # We add one to the message because indexing always starts at zero
         # but in everyday life we start counting from one
         return message

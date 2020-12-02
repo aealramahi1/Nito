@@ -13,7 +13,7 @@ class Round(object):
     Methods:
         startRound(thisplayer): Starts the round with thisplayer as round_owner
         endRound(): Ends the round and sets variables to null
-        addPlayer(newplayer): Adds another player to player_list
+        addPlayer(new_player): Adds another player to player_list
         removePlayer(oldplayer): Removes a player from player_list
         setQuestionTime(num): Sets question_time to num
         resetQuestionTime(): Resets question_time to default (5.0)
@@ -42,16 +42,17 @@ class Round(object):
 
     def startRound(self, thisplayer):
         """
-        Starts the round with the player who called this command as the round
-        owner.
+        Starts the round with the player who called this command as the round owner.
 
         Parameters:
             thisplayer (Player object): Person who created the round
         """
         # The person who created the round is the only one who can control it
         self.round_owner = thisplayer
+
         # List to contain all the players for this round, including the owner
         self.player_list = [self.round_owner]
+
         # Indicates whether the round is currently active or not
         self.round_status = True
 
@@ -63,37 +64,28 @@ class Round(object):
         self.player_list = []
         self.round_status = False
 
-    def addPlayer(self, newplayer):
+    def addPlayer(self, new_player):
         """
         Adds another player to the list of current players
 
         Parameters:
-            newplayer (Player object): Person who joined the round
+            new_player (Player object): Person who joined the round
 
         Returns:
             message (str): The message detailing the results of the function (i.e. whether it worked or not)
         """
-        # Make sure the player is not the owner or already in the list of
-        # current players
-        if newplayer not in self.player_list and \
-                newplayer is not self.round_owner:
-            self.player_list.append(newplayer)
-            message = newplayer.getPartialName() + " joined successfully!"
+        # Make sure the player is not the owner or already in the list of current players
+        if new_player not in self.player_list and new_player is not self.round_owner:
+            self.player_list.append(new_player)
+            message = new_player.getPartialName() + ' joined successfully!'
 
         # If the player attempted to join a second time
-        elif newplayer in self.player_list:
-            message = newplayer.getPartialName() + " has already joined..."
+        elif new_player in self.player_list:
+            message = new_player.getPartialName() + ' has already joined...'
 
         # If the player is actually the round owner
-        elif newplayer is self.round_owner:
-            message = newplayer.getPartialName() + " created this round..."
-
-        # Hopefully there shouldn't be an error because we'll check in the
-        # client code if the user is a valid player, but just in case it
-        # doesn't hurt to include an else statement
-        else:
-            message = "Somehow, an error occurred :("
-
+        elif new_player is self.round_owner:
+            message = new_player.getPartialName() + ' created this round...'
         return message
 
     def removePlayer(self, oldplayer):
@@ -106,26 +98,19 @@ class Round(object):
         Returns:
             message (str): The message detailing the results of the function (i.e. whether it worked or not)
         """
-        # Make sure the player is already in the list of players, but not the
-        # owner
-        if oldplayer in self.player_list and \
-                oldplayer is not self.round_owner:
+        # Make sure the player is already in the list of players, but not the owner
+        if oldplayer in self.player_list and oldplayer is not self.round_owner:
             self.player_list.remove(oldplayer)
-            message = oldplayer.getPartialName() + " has quit."
+            message = oldplayer.getPartialName() + ' has quit.'
 
         # Check to see if the player is the round owner
         elif oldplayer is self.round_owner:
             self.endRound()
-            message = "The round owner has quit. Round ended."
+            message = 'The round owner has quit. Round ended.'
 
         # Check to see if the user wasn't even playing
         elif oldplayer not in self.player_list:
-            message = "You're not even playing, how can you quit???"
-
-        # Let's hope this doesn't run...
-        else:
-            message = "I don't know how, but you triggered an error..."
-
+            message = 'You\'re not even playing, how can you quit???'
         return message
 
     def setQuestionTime(self, player, num):
@@ -140,24 +125,25 @@ class Round(object):
             message (str): The message detailing the results of the function (i.e. whether it worked or not)
         """
         if player is self.round_owner:
+
             # Prevent negative time
             if num < 0:
-                message = "You cannot have negative time."
+                message = 'You cannot have negative time.'
 
             # Pretty reasonable numbers for now
             elif 0 <= num <= 60:
-                self.question_time = float(num)  # question_time is always a float
-                message = "Question time set to: " + num + "."
+                self.question_time = float(num)
+                message = 'Question time set to: ' + num + '.'
 
             # Prevent super big numbers
             elif num > 60:
-                message = "That number is way too big."
+                message = 'That number is way too big.'
 
             # Prevents anything other than numbers
             else:
-                message = "Please enter a number."
+                message = 'Please enter a number.'
         else:
-            message = "You cannot do that. You are not the round owner."
+            message = 'You cannot do that. You are not the round owner.'
 
         return message
 
@@ -169,7 +155,7 @@ class Round(object):
             message (str): Lets us know that this function works properly
         """
         self.question_time = 5.0
-        message = "Question time reset to 5.0 seconds"
+        message = 'Question time reset to 5.0 seconds'
         return message
 
     def setBuzzTime(self, num):
@@ -183,21 +169,21 @@ class Round(object):
             message (str): The message detailing the results of the function (i.e. whether it worked or not)
         """
         # Prevent negative time
-        if num < 0:
-            message = "You cannot have negative time"
+        if float(num) < 0:
+            message = 'You cannot have negative time'
 
         # Pretty reasonable numbers for now
-        elif 0 <= num <= 60:
+        elif 0 <= float(num) <= 60:
             self.buzz_time = float(num)
-            message = "Question time set to: " + num
+            message = 'Question time set to: ' + num
 
         # Prevent super big numbers
-        elif num > 60:
-            message = "That number is way too big"
+        elif float(num) > 60:
+            message = 'That number is way too big'
 
         # Hopefully this never runs, but you can't be too safe
         else:
-            message = "An error has occurred"
+            message = 'An error has occurred'
 
         return message
 
@@ -209,14 +195,13 @@ class Round(object):
             message (str): Lets us know that this function works properly
         """
         self.buzz_time = 6.0
-        message = "Buzz time reset to 6.0 seconds"
+        message = 'Buzz time reset to 6.0 seconds'
         return message
 
     def getInitializer(self):
         """
         Returns the initializer for the current Round object
         """
-        init = "RoundClass.Round(" + str(self.question_time) + ","
-        init += str(self.buzz_time) + "," + str(self.round_owner) + ","
-        init += str(self.player_list) + "," + str(self.round_status) + ")"
+        init = 'RoundClass.Round(' + str(self.question_time) + ','
+        init += str(self.buzz_time) + ',' + 'None,False)'
         return init

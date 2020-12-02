@@ -79,7 +79,7 @@ class PlayerActions(commands.Cog):
                     playerobj = all_data[i + 1]
                     PlayerActions.allp[gid][user] = eval(playerobj)
 
-    @commands.command(aliases = ['sp', 'savep', 'saveplayers'])
+    @commands.command(aliases=['sp', 'savep', 'saveplayers'])
     @commands.has_permissions(manage_messages=True)
     async def save_players(self):
         """
