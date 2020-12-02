@@ -1,6 +1,6 @@
 import discord
 from discord.ext import commands
-from BotToken import TOKEN
+from Token import TOKEN
 
 # All command are called using the format q!cmdname
 bot = commands.Bot(command_prefix="q!")
