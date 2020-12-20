@@ -13,22 +13,22 @@ class PlayerActions(commands.Cog):
         allp: Nested dictionary storing the Player objects in the format of {GUILD_ID : {USER_ID : PLAYEROBJ}}
 
     Loops:
-        autosavePlayers: Saves player information every 3 minutes
+        autosavePlayers: Save player information every 3 minutes.
 
     Commands:
-        q!load_players: Loads player information
-        q!save_players: Saves player information
-        q!establish_player: Initializes a player object for the user that called the command
+        q!load_players: Load player information.
+        q!save_players: Save player information.
+        q!establish_player: Register as a player.
     """
 
     # Information about the administrator and general commands of the bot (in the dictionary format required by embeds)
     admin_cmds = [{'inline': False, 'name': 'q!load_players\tq!lp\tq!loadp\tq!loadplayers',
-                   'value': 'Loads player information.'},
+                   'value': 'Load player information.'},
                   {'inline': False, 'name': 'q!save_players\tq!sp\tq!savep\tq!saveplayers',
-                   'value': 'Saves player information.'}]
+                   'value': 'Save player information.'}]
 
     general_cmds = [{'inline': False, 'name': 'q!establish_player\tq!ep\tq!establish\tq!establishplayer',
-                     'value': 'Initializes a player object for the user that called this command.'}]
+                     'value': 'Register as a player.'}]
 
     # Stores the Player objects in the format
     # {GUILD_ID : {USER_ID : PLAYEROBJ}}
@@ -36,14 +36,14 @@ class PlayerActions(commands.Cog):
 
     def __init__(self, bot):
         """
-        Initializer function that allows us to access the bot within this cog
+        Initializer function that allows us to access the bot within this cog.
         """
         self.bot = bot
 
     @tasks.loop(minutes=3)
     async def autosavePlayers(self):
         """
-        Saves player information every 3 minutes.
+        Save player information every 3 minutes.
         """
         await self.save_players()
 
@@ -51,7 +51,7 @@ class PlayerActions(commands.Cog):
     @commands.has_permissions(manage_messages=True)
     async def load_players(self):
         """
-        Loads player information. Only administrators may use this command.
+        Load player information. Only administrators may use this command.
         """
         if os.stat('cogs/PlayerData.txt').st_size != 0:
             # Open the data file for reading
@@ -83,7 +83,7 @@ class PlayerActions(commands.Cog):
     @commands.has_permissions(manage_messages=True)
     async def save_players(self):
         """
-        Saves player information. Only users with administrative powers may use this command
+        Save player information. Only users with administrative powers may use this command.
         """
         # Open the file to write
         playerfile = open('cogs/PlayerData.txt', 'w')
@@ -119,53 +119,24 @@ class PlayerActions(commands.Cog):
     @commands.command(aliases=['ep', 'establish', 'establishplayer'])
     async def establish_player(self, ctx):
         """
-        Initializes a player object for the user that called this command
+        Initialize a player object for the user that called this command.
         """
-        user = ctx.author  # The author of the message
-        guild_id = ctx.guild.id  # Current guild
 
-        # Make sure the user doesn't have multiple Player objects
+        # Make sure the guild is in the dictionary
         try:
-
-            # result is True if the user already has a Player object
-            result = False
-
-            # flag is False unless we reach the end of the dictionary
-            flag = False
-            all_users = PlayerActions.allp[guild_id].keys()
-            numelements = len(all_users) - 1
-            i = 0
-            while not result and not flag:
-                # Loop through the list of players until we find the user
-                for person in PlayerActions.allp[guild_id]:
-                    if person == user.id:
-                        result = True
-                    if i == numelements:
-                        flag = True
-                    i += 1
-
-        # If a KeyError was produced, the guild isn't in the dictionary
+            PlayerActions.allp[ctx.guild.id]
         except KeyError:
-            result = False
+            PlayerActions.allp[ctx.guild.id] = {}
 
-        if not result:
-            # Create a Player object
-            newplayer = PlayerClass.Player(user.id)
-
-            # Make sure this guild is in the dictionary
-            try:
-                PlayerActions.allp[guild_id][user.id] = newplayer
-            except KeyError:
-                PlayerActions.allp[guild_id] = {}
-                PlayerActions.allp[guild_id][user.id] = newplayer
-
-            # This way, we can access a user's Player object using the
-            # member object of the user
+        # Make sure the person actually needs to establish a player
+        try:
+            PlayerActions.allp[ctx.guild.id][ctx.author.id]
+            await ctx.send('You have already registered yourself as a player...')
+        except KeyError:
+            newplayer = PlayerClass.Player(ctx.author.id)
+            PlayerActions.allp[ctx.guild.id][ctx.author.id] = newplayer
             await self.save_players()
             await ctx.send('Player established.')
-        else:
-            await ctx.send('Cannot establish player. Perhaps you already ' +
-                           'used this command...')
 
 
 def setup(bot):

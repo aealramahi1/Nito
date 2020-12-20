@@ -74,6 +74,8 @@ class Round(object):
         Returns:
             message (str): The message detailing the results of the function (i.e. whether it worked or not)
         """
+        message = 'An error has occurred.'
+
         # Make sure the player is not the owner or already in the list of current players
         if new_player not in self.player_list and new_player is not self.round_owner:
             self.player_list.append(new_player)
@@ -98,6 +100,8 @@ class Round(object):
         Returns:
             message (str): The message detailing the results of the function (i.e. whether it worked or not)
         """
+        message = 'An error has occurred.'
+
         # Make sure the player is already in the list of players, but not the owner
         if oldplayer in self.player_list and oldplayer is not self.round_owner:
             self.player_list.remove(oldplayer)
