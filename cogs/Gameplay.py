@@ -1,4 +1,6 @@
+import pandas
 from discord.ext import commands
+
 
 class Gameplay(commands.Cog):
     """
@@ -9,12 +11,17 @@ class Gameplay(commands.Cog):
         q!b: Buzz in for the current question.
     """
 
+    # Information about the general commands of the bot (in the dictionary format required by embeds)
+    general_cmds = [{'inline': False, 'name': 'q!q', 'value': 'Start the next question.'},
+                    {'inline': False, 'name': 'q!b', 'value': 'Buzz in for the current question.'}]
+
     def __init__(self, bot):
         """
         Initializer function that allows us to access the bot within this cog.
         """
         self.bot = bot
 
+    # todo: close the file when the round ends
     @commands.command()
     async def q(self, ctx):
         """
@@ -23,7 +30,20 @@ class Gameplay(commands.Cog):
         Parameters:
             ctx (Context): The required context
         """
+        question_file = open("cogs/Questions.csv", "r")
+        whole_file = question_file.read()
+        questions_and_answers = whole_file.split("\n")
+        # Pull in the next question from the CSV file and store it in a list (separated on the periods)
+        # Pull in the answer to this question from the same CSV file, storing it in a str variable
+        # Send a message with one sentence
+        # Wait question_time seconds
+        # Edit the message to add another sentence
+        # Halt if someone buzzes
+        # Stop the loop when the question ends and display the correct answer
+        # If time runs out and no-one has guessed correctly, display the correct answer
 
+    # todo: make sure that you can only buzz in when a question is active
+    # todo: make sure only one player can buzz in at a time
     @commands.command()
     async def b(self, ctx):
         """
@@ -32,9 +52,13 @@ class Gameplay(commands.Cog):
         Parameters:
             ctx (Context): The required context
         """
+        # Halt the question reading
+        # Wait buzz_time seconds
+        # If the buzz is correct, display the rest of the question along with the answer
+
 
 def setup(bot):
     """
-    Allows the bot to load this cog
+    Allow the bot to load this cog.
     """
     bot.add_cog(Gameplay(bot))

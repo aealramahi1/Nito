@@ -261,7 +261,7 @@ class RoundCreator(commands.Cog):
             if not this_round.round_status:
                 await ctx.send('No active round found.')
 
-           # Round active
+            # Round active
             else:
 
                 # The mention strings for the relevant users (allows us to mention them in the channel)
@@ -275,8 +275,7 @@ class RoundCreator(commands.Cog):
                 try:
 
                     # Wait for 5 seconds for a response
-                    response = await self.bot.wait_for('message', timeout=5.0,
-                                                       check=correctUser)
+                    response = await self.bot.wait_for('message', timeout=5.0, check=correctUser)
                     response_content = response.content
                 # todo: make sure this works
                 except asyncio.TimeoutError:
