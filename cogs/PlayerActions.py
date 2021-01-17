@@ -56,16 +56,14 @@ class PlayerActions(commands.Cog):
 
                     # Create the Player object for this user
                     try:
-                        PlayerActions.allp[row['Guild ID']][row['Player ID']] = PlayerClass.Player(row['Player ID'],
-                                                                                                   row['Total Score'],
-                                                                                                   row['Round Score'],
-                                                                                                   row['Player Index'])
+                        PlayerActions.allp[row['Guild ID']][row['Player ID']] = \
+                            PlayerClass.Player(row['Player ID'], totscore=row['Total Score'],
+                                               rndscore=row['Round Score'], index=row['Player Index'])
                     except KeyError:
                         PlayerActions.allp[row['Guild ID']] = {}
-                        PlayerActions.allp[row['Guild ID']][row['Player ID']] = PlayerClass.Player(row['Player ID'],
-                                                                                                   row['Total Score'],
-                                                                                                   row['Round Score'],
-                                                                                                   row['Player Index'])
+                        PlayerActions.allp[row['Guild ID']][row['Player ID']] = \
+                            PlayerClass.Player(row['Player ID'], totscore=row['Total Score'],
+                                               rndscore=row['Round Score'], index=row['Player Index'])
 
     async def save_players(self):
         """

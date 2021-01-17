@@ -5,13 +5,9 @@ class Player:
     the user invokes the q!establish_player command (handled outside the class)
 
     Attributes:
-        memberobj (Member object): The member object of the user
         total_score (int): Summation of all round scores for the user
         round_score (int): The score the user got in their most recent round
         question_index (int): Current question index
-
-    Methods:
-        getInitializer(): Returns the call to create a new object with the data of the current object
     """
 
     def __init__(self, theid, totscore=0, rndscore=0, index=0):
@@ -40,21 +36,10 @@ class Player:
         """
         message = ""
 
-        # The name of the user calling the command should be taken care of
-        # in the client
+        # The name of the user calling the command should be taken care of in the client
         message += "\tTotal Score: " + str(self.total_score)
         message += "\n\tQuestion Number: " + str(self.question_index + 1)
 
-        # We add one to the message because indexing always starts at zero
-        # but in everyday life we start counting from one
+        # We add one to the message because indexing always starts at zero but in everyday life we start counting from
+        # one
         return message
-
-    # def getInitializer(self):
-    #     """
-    #     Returns the call to create a new object with the same data as the
-    #     current one
-    #     """
-    #     call = "PlayerClass.Player(" + str(self.theid) + "," + \
-    #            str(self.total_score) + "," + str(self.round_score) + "," + \
-    #            str(self.question_index) + ")"
-    #     return call

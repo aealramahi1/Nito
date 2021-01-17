@@ -1,4 +1,5 @@
 import os
+import csv
 import asyncio
 from discord.ext import commands
 from discord.ext import tasks
@@ -72,6 +73,8 @@ class RoundCreator(commands.Cog):
         """
         await self.save_rounds()
 
+# todo: make sure there aren't type errors with the list
+
     @commands.command()
     @commands.has_permissions(manage_messages=True)
     async def load_rounds(self):
@@ -79,34 +82,25 @@ class RoundCreator(commands.Cog):
         Load round information. Only guild administrators may use this command.
         """
         # Import the round data if we have any
-        if os.stat('cogs/RoundData.txt').st_size != 0:
+        if os.stat('cogs/RoundData.csv').st_size != 0:
+            with open('cogs/RoundData.csv', 'r') as round_data:
 
-            # Open the data file for reading
-            round_data = open('cogs/RoundData.txt', 'r')
-            contents = round_data.read()
+                # Each line of data_reader is a dictionary whose keys are the file headers
+                # Keys: Guild ID, Channel, ID, Round Owner, Question Time, Buzz Time, Player List, Round Status
+                data_reader = csv.DictReader(round_data)
+                for row in data_reader:
 
-            # Gather all the round data by guild
-            # Each guild is separated by a \n character
-            guilds = contents.split('\n')
-
-            # Loop through each guild
-            for guild in guilds:
-
-                # The channels and Round objects are split by *
-                all_data = guild.split('*')
-
-                # The guild ID is the first element
-                gid = int(all_data[0])
-
-                # Make this dictionary nested
-                RoundCreator.allr[gid] = {}
-
-                # Loop through all the channels and re-establish Round objects. We count by twos so that we shift to
-                # the next channel each time instead of to a Round object
-                for i in range(1, len(all_data) - 1, 2):
-                    channel = int(all_data[i])
-                    roundobj = all_data[i + 1]
-                    RoundCreator.allr[gid][channel] = eval(roundobj)
+                    # Create the Round object for this round
+                    try:
+                        # ro=None, qt=5.0, bt=6.0, pl=None, stat=False
+                        RoundCreator.allr[row['Guild ID']][row['Channel ID']] = \
+                            RoundClass.Round(ro=row['Round Owner'], qt=row['Question Time'], bt=row['Buzz Time'],
+                                             pl=row['Player List'], stat=row['Round Status'])
+                    except KeyError:
+                        RoundCreator.allr[row['Guild ID']] = {}
+                        RoundCreator.allr[row['Guild ID']][row['Channel ID']] = \
+                            RoundClass.Round(ro=row['Round Owner'], qt=row['Question Time'], bt=row['Buzz Time'],
+                                             pl=row['Player List'], stat=row['Round Status'])
 
     @commands.command(aliases=['saver', 'saverounds'])
     @commands.has_permissions(manage_messages=True)
@@ -114,37 +108,19 @@ class RoundCreator(commands.Cog):
         """
         Save round information. Only administrators may use this command.
         """
+        with open('cogs/RoundData.csv', 'w') as round_data:
+            data_writer = csv.DictWriter(round_data,
+                                         fieldnames=['Guild ID', 'Channel ID', 'Round Owner', 'Question Time',
+                                                     'Buzz Time', 'Player List', 'Round Status'])
+            data_writer.writeheader()
 
-        # Open the file to write
-        round_file = open('cogs/RoundData.txt', 'w')
-
-        write_data = ''
-
-        # Write the data so that guilds are separated by \n and channels/rounds
-        # objects are separated with *
-
-        # Loop through and write all of the guild_ids
-        for guild in RoundCreator.allr:
-
-            # We don't want the first character to be \n
-            if write_data == '':
-                write_data += str(guild)
-            else:
-                write_data += '\n' + str(guild)
-
-            # Loop through the channels and the rounds and add them
-            for channel in RoundCreator.allr[guild]:
-                the_round = RoundCreator.allr[guild][channel]
-                write_data += '*' + str(channel)
-
-                # Grab the initializer for this Round object
-                write_data += '*' + the_round.getInitializer()
-
-        # Write the updated dictionary to the file
-        round_file.write(write_data)
-
-        # Close the file
-        round_file.close()
+            # Write all the data to the csv file
+            for guild_id, channel_dict in RoundCreator.allr.items():
+                for channel_id, round_obj in channel_dict.items():
+                    data_writer.writerow(
+                        {'Guild ID': guild_id, 'Channel ID': channel_id, 'Round Owner': round_obj.round_owner,
+                         'Question Time': round_obj.question_time, 'Buzz Time': round_obj.buzz_time,
+                         'Player List': round_obj.player_list, 'Round Status' : round_obj.round_status})
 
     async def makeRound(self, gid, cid, newrnd):
         """
