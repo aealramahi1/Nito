@@ -3,8 +3,6 @@ import random
 from discord.ext import commands
 
 
-# TODO: If the person gives less than a 5 nito asks if they want to see a cute picture or video
-
 class Personality(commands.Cog):
     """
     This cog gives Nito a little bit of character. He's fun and sweet, but can get a little cranky and sassy if you bug
@@ -17,6 +15,11 @@ class Personality(commands.Cog):
         on_message: Checks if messages sent in the guild contain keywords that trigger responses from Nito
     """
 
+    admin_cmds = []
+
+    # Information about the general commands of the bot (in the dictionary format required by embeds)
+    general_cmds = [{'inline': False, 'name': 'q!happiness_rate', 'value': 'Rate your happiness!'}]
+
     responses = ['let me go back to bed >:(', 'stop bugging me.', 'leave me alone.', 'play my game!',
                  'tell me a joke :)']
     yes_responses = ['y', 'yes', 'sure', 'why not', 'yeah', 'ya', 'yas', 'yeas', 'yea', 'fine']
@@ -27,6 +30,7 @@ class Personality(commands.Cog):
         """
         self.bot = bot
 
+    # TODO: If the person gives less than a 5 nito asks if they want to see a cute picture or video
     @commands.command()
     async def happiness_rate(self, ctx):
         """

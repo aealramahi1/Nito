@@ -49,12 +49,12 @@ class Player:
         # but in everyday life we start counting from one
         return message
 
-    def getInitializer(self):
-        """
-        Returns the call to create a new object with the same data as the
-        current one
-        """
-        call = "PlayerClass.Player(" + str(self.theid) + "," + \
-               str(self.total_score) + "," + str(self.round_score) + "," + \
-               str(self.question_index) + ")"
-        return call
+    # def getInitializer(self):
+    #     """
+    #     Returns the call to create a new object with the same data as the
+    #     current one
+    #     """
+    #     call = "PlayerClass.Player(" + str(self.theid) + "," + \
+    #            str(self.total_score) + "," + str(self.round_score) + "," + \
+    #            str(self.question_index) + ")"
+    #     return call

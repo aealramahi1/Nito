@@ -1,4 +1,5 @@
 import os
+import csv
 from discord.ext import commands
 from discord.ext import tasks
 import cogs.Player as PlayerClass
@@ -22,16 +23,10 @@ class PlayerActions(commands.Cog):
     """
 
     # Information about the administrator and general commands of the bot (in the dictionary format required by embeds)
-    admin_cmds = [{'inline': False, 'name': 'q!load_players\tq!lp\tq!loadp\tq!loadplayers',
-                   'value': 'Load player information.'},
-                  {'inline': False, 'name': 'q!save_players\tq!sp\tq!savep\tq!saveplayers',
-                   'value': 'Save player information.'}]
-
     general_cmds = [{'inline': False, 'name': 'q!establish_player\tq!ep\tq!establish\tq!establishplayer',
                      'value': 'Register as a player.'}]
 
-    # Stores the Player objects in the format
-    # {GUILD_ID : {USER_ID : PLAYEROBJ}}
+    # Stores the Player objects in the format {GUILD_ID : {USER_ID : PLAYEROBJ}}
     allp = {}
 
     def __init__(self, bot):
@@ -47,74 +42,46 @@ class PlayerActions(commands.Cog):
         """
         await self.save_players()
 
-    @commands.command(aliases=['lp', 'loadp', 'loadplayers'])
-    @commands.has_permissions(manage_messages=True)
     async def load_players(self):
         """
         Load player information. Only administrators may use this command.
         """
-        if os.stat('cogs/PlayerData.txt').st_size != 0:
-            # Open the data file for reading
-            playerdata = open('cogs/PlayerData.txt', 'r')
-            contents = playerdata.read()
+        if os.stat('cogs/PlayerData.csv').st_size != 0:
+            with open('cogs/PlayerData.csv', 'r') as player_data:
 
-            # Gather all the player data by guild
-            # Each guild is separated by a \n character
-            guilds = contents.split('\n')
+                # Each line of data_reader is a dictionary whose keys are the file headers
+                # Keys: Guild ID, Player ID, Total Score, Round Score, Player Index
+                data_reader = csv.DictReader(player_data)
+                for row in data_reader:
 
-            # Loop through each guild
-            for guild in guilds:
-                # The users and Player objects are split by *
-                all_data = guild.split('*')
-                # The guild ID is the first element
-                gid = int(all_data[0])
-                # Make this dictionary nested
-                PlayerActions.allp[gid] = {}
+                    # Create the Player object for this user
+                    try:
+                        PlayerActions.allp[row['Guild ID']][row['Player ID']] = PlayerClass.Player(row['Player ID'],
+                                                                                                   row['Total Score'],
+                                                                                                   row['Round Score'],
+                                                                                                   row['Player Index'])
+                    except KeyError:
+                        PlayerActions.allp[row['Guild ID']] = {}
+                        PlayerActions.allp[row['Guild ID']][row['Player ID']] = PlayerClass.Player(row['Player ID'],
+                                                                                                   row['Total Score'],
+                                                                                                   row['Round Score'],
+                                                                                                   row['Player Index'])
 
-                # Loop through all the users and re-establish Player objects
-                # We count by twos so that we shift to the next user each time
-                # instead of to a Player object
-                for i in range(1, len(all_data) - 1, 2):
-                    user = int(all_data[i])
-                    playerobj = all_data[i + 1]
-                    PlayerActions.allp[gid][user] = eval(playerobj)
-
-    @commands.command(aliases=['sp', 'savep', 'saveplayers'])
-    @commands.has_permissions(manage_messages=True)
     async def save_players(self):
         """
         Save player information. Only users with administrative powers may use this command.
         """
-        # Open the file to write
-        playerfile = open('cogs/PlayerData.txt', 'w')
+        with open('cogs/PlayerData.csv', 'w') as player_data:
+            data_writer = csv.DictWriter(player_data, fieldnames=['Guild ID', 'Player ID', 'Total Score', 'Round Score',
+                                                                  'Player Index'])
+            data_writer.writeheader()
 
-        write_data = ''
-
-        # Write the data so that guilds are separated by \n and users/player
-        # objects are separated with *
-
-        # Loop through and write all of the guild_ids
-        for guild in PlayerActions.allp:
-
-            # We don't want the first character to be \n
-            if write_data == '':
-                write_data += str(guild)
-            else:
-                write_data += '\n' + str(guild)
-
-            # Loop through the users and the Players and add them
-            for user in PlayerActions.allp[guild]:
-                player = PlayerActions.allp[guild][user]
-                write_data += '*' + str(user)
-
-                # Grab the initializer for this Player object
-                write_data += '*' + player.getInitializer()
-
-        # Write the updated dictionary to the file
-        playerfile.write(write_data)
-
-        # Close the file
-        playerfile.close()
+            # Write all the data to the csv file
+            for guild_id, user_dict in PlayerActions.allp.items():
+                for user_id, player_obj in user_dict.items():
+                    data_writer.writerow(
+                        {'Guild ID': guild_id, 'Player ID': user_id, 'Total Score': player_obj.total_score,
+                         'Round Score': player_obj.round_score, 'Player Index': player_obj.question_index})
 
     @commands.command(aliases=['ep', 'establish', 'establishplayer'])
     async def establish_player(self, ctx):

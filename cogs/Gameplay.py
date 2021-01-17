@@ -1,6 +1,8 @@
 import pandas
 from discord.ext import commands
 
+# todo: maybe implement pandas to pull in the data
+
 
 class Gameplay(commands.Cog):
     """
@@ -10,6 +12,8 @@ class Gameplay(commands.Cog):
         q!q: Start the next question.
         q!b: Buzz in for the current question.
     """
+
+    admin_cmds = []
 
     # Information about the general commands of the bot (in the dictionary format required by embeds)
     general_cmds = [{'inline': False, 'name': 'q!q', 'value': 'Start the next question.'},
@@ -30,9 +34,23 @@ class Gameplay(commands.Cog):
         Parameters:
             ctx (Context): The required context
         """
+
+        # process the entire file
         question_file = open("cogs/Questions.csv", "r")
         whole_file = question_file.read()
         questions_and_answers = whole_file.split("\n")
+
+        # todo: this won't work if there are comments in the questions
+        # split up the file into questions and answers
+        questions = []
+        answers = []
+        for pair in questions_and_answers:
+            questions.append(pair.split(',')[0])
+            answers.append(pair.split(',')[1])
+
+        print(questions)
+        print(answers)
+
         # Pull in the next question from the CSV file and store it in a list (separated on the periods)
         # Pull in the answer to this question from the same CSV file, storing it in a str variable
         # Send a message with one sentence
