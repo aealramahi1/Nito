@@ -73,7 +73,7 @@ class RoundCreator(commands.Cog):
         """
         await self.save_rounds()
 
-# todo: make sure there aren't type errors with the list
+    # todo: make sure there aren't type errors with the list
 
     @commands.command()
     @commands.has_permissions(manage_messages=True)
@@ -92,15 +92,15 @@ class RoundCreator(commands.Cog):
 
                     # Create the Round object for this round
                     try:
-                        # ro=None, qt=5.0, bt=6.0, pl=None, stat=False
-                        RoundCreator.allr[row['Guild ID']][row['Channel ID']] = \
-                            RoundClass.Round(ro=row['Round Owner'], qt=row['Question Time'], bt=row['Buzz Time'],
-                                             pl=row['Player List'], stat=row['Round Status'])
+                        RoundCreator.allr[int(row['Guild ID'])][int(row['Channel ID'])]
                     except KeyError:
-                        RoundCreator.allr[row['Guild ID']] = {}
-                        RoundCreator.allr[row['Guild ID']][row['Channel ID']] = \
-                            RoundClass.Round(ro=row['Round Owner'], qt=row['Question Time'], bt=row['Buzz Time'],
-                                             pl=row['Player List'], stat=row['Round Status'])
+                        RoundCreator.allr[int(row['Guild ID'])] = {}
+
+                    # ro=None, qt=5.0, bt=6.0, pl=None, stat=False
+                    RoundCreator.allr[int(row['Guild ID'])][int(row['Channel ID'])] = RoundClass.Round(
+                        ro=row['Round Owner'], qt=float(row['Question Time']), bt=float(row['Buzz Time']),
+                        pl=list(row['Player List']),
+                        stat=bool(row['Round Status']))
 
     @commands.command(aliases=['saver', 'saverounds'])
     @commands.has_permissions(manage_messages=True)
@@ -120,7 +120,7 @@ class RoundCreator(commands.Cog):
                     data_writer.writerow(
                         {'Guild ID': guild_id, 'Channel ID': channel_id, 'Round Owner': round_obj.round_owner,
                          'Question Time': round_obj.question_time, 'Buzz Time': round_obj.buzz_time,
-                         'Player List': round_obj.player_list, 'Round Status' : round_obj.round_status})
+                         'Player List': round_obj.player_list, 'Round Status': round_obj.round_status})
 
     async def makeRound(self, gid, cid, newrnd):
         """

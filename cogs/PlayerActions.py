@@ -3,6 +3,7 @@ import csv
 from discord.ext import commands
 from discord.ext import tasks
 import cogs.Player as PlayerClass
+# todo: use JSON to store the objects so they are more easily created
 
 
 class PlayerActions(commands.Cog):
@@ -54,16 +55,17 @@ class PlayerActions(commands.Cog):
                 data_reader = csv.DictReader(player_data)
                 for row in data_reader:
 
+                    # todo: change this from a try except to an if statement with a null check
                     # Create the Player object for this user
                     try:
-                        PlayerActions.allp[row['Guild ID']][row['Player ID']] = \
-                            PlayerClass.Player(row['Player ID'], totscore=row['Total Score'],
-                                               rndscore=row['Round Score'], index=row['Player Index'])
+                        PlayerActions.allp[int(row['Guild ID'])][int(row['Player ID'])] = \
+                            PlayerClass.Player(int(row['Player ID']), totscore=int(row['Total Score']),
+                                               rndscore=int(row['Round Score']), index=int(row['Player Index']))
                     except KeyError:
-                        PlayerActions.allp[row['Guild ID']] = {}
-                        PlayerActions.allp[row['Guild ID']][row['Player ID']] = \
-                            PlayerClass.Player(row['Player ID'], totscore=row['Total Score'],
-                                               rndscore=row['Round Score'], index=row['Player Index'])
+                        PlayerActions.allp[int(row['Guild ID'])] = {}
+                        PlayerActions.allp[int(row['Guild ID'])][int(row['Player ID'])] = \
+                            PlayerClass.Player(int(row['Player ID']), totscore=int(row['Total Score']),
+                                               rndscore=int(row['Round Score']), index=int(row['Player Index']))
 
     async def save_players(self):
         """
