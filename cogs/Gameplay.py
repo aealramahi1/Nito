@@ -33,10 +33,13 @@ class Gameplay(commands.Cog):
         global roundcog
         roundcog = self.bot.get_cog('RoundCreator')
 
+        global buzzed
+        buzzed = False
+
     def __del__(self):
         self.question_data.close()
 
-    # todo: make sure you can only queue a question if there is an active round in this channel
+    # todo: make it so that the last part of the question runs properly (currently displays answer too soon)
     @commands.command()
     async def q(self, ctx):
         """
@@ -45,41 +48,60 @@ class Gameplay(commands.Cog):
         Parameters:
             ctx (Context): The required context
         """
-        # Pull in the next question from the CSV file and store it in a list (separated on the periods)
-        # Pull in the answer to this question from the same CSV file, storing it in a str variable
-        # Send a message with one sentence
-        # Wait question_time seconds
-        # Edit the message to add another sentence
-        # Halt if someone buzzes
-        # Stop the loop when the question ends and display the correct answer
-        # If time runs out and no-one has guessed correctly, display the correct answer
 
-        if roundcog:
-            pass
+        # Only perform this action if the round exists and is active
+        this_round = roundcog.allr[ctx.guild.id][ctx.channel.id]
 
-        # Pull in the next question and answer from the file
-        question_and_answer = next(self.data_reader)
-        answer = question_and_answer['Answer']
+        if this_round and this_round.round_status:
 
-        # Split the question on the periods
-        question_separated = question_and_answer['Question'].split('. ')
+            # Pull in the next question and answer from the file
+            question_and_answer = next(self.data_reader)
+            answer = question_and_answer['Answer']
 
-        i = 0
-        answered = False
-        while i < len(question_separated) and not answered:
-            await ctx.send(question_separated[i] + '. ')
-            i += 1
+            # Split the question on the periods
+            question_separated = question_and_answer['Question'].split('. ')
 
+            i = 0
+            answered = False
+            global buzzed
+            message = await ctx.send(question_separated[i] + '. ')
 
+            # Loop while the question hasn't been answered and there is still more of the question to display
+            while i < len(question_separated) - 1 and not answered:
+                i += 1
+                j = 0
 
-            pass
+                # Wait question_time seconds or until someone buzzes, checking every second
+                while j < this_round.question_time and not answered:
+                    await asyncio.sleep(1)
 
-        # While the question hasn't been answered and there is still more question:
-        #   print one sentence of the question
-        #   wait question_time seconds or until someone buzzes
-        #   if someone buzzes
-        #       check if the answer was right (ignore case) and change the flag
-        # Display the answer
+                    if buzzed:
+                        # todo: add a check to make sure it's the user that buzzed
+
+                        # Get the response of the user who buzzed
+                        response = await self.bot.wait_for('message', timeout=this_round.buzz_time)
+                        response_content = response.content
+                        buzzed = False
+
+                        # Check the answer
+                        if (response_content == answer):
+                            answered = True;
+
+                            # Display the whole question
+                            await message.edit(content=question_and_answer['Question'])
+                            await ctx.send("Correct!")
+                        else:
+                            await ctx.send("Not quite...")
+
+                    j += 1
+
+                if not answered:
+                    # Display the next part of the question if not yet guessed
+                    await message.edit(content=message.content + question_separated[i] + '. ')
+
+            # Display the answer if no one got it right
+            if not answered:
+                await ctx.send("Answer: " + answer)
 
     # todo: make sure that you can only buzz in when a question is active
     # todo: make sure only one player can buzz in at a time
@@ -91,9 +113,8 @@ class Gameplay(commands.Cog):
         Parameters:
             ctx (Context): The required context
         """
-        # Halt the question reading
-        # Wait buzz_time seconds
-        # If the buzz is correct, display the rest of the question along with the answer
+        global buzzed
+        buzzed = True
 
 
 def setup(bot):
